@@ -20,5 +20,11 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
             'created_at' => now(),
         ]);
+        User::create([
+            'username' => 'user1',
+            'password_hash' => Hash::make('user12345'), // Mật khẩu: 'user12345', mã hóa bằng Hash
+            'role' => 'user',
+            'created_at' => now(),
+        ]);
     }
 }
