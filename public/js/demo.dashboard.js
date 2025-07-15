@@ -65,55 +65,63 @@
     };
     new ApexCharts(document.querySelector("#revenue-chart"), revenueOptions).render();
 
-    // Bar Chart (#high-performing-product)
     fetch('/api/chart-data')
     .then(response => response.json())
     .then(data => {
         var barColors = ["#727cf5"];
+
+        // ✅ Tìm giá trị lớn nhất trong mảng dữ liệu
+        const allData = data.series.flatMap(serie => serie.data);
+        const maxY = Math.max(...allData);
+
+        // ✅ Tính toán stepSize (ví dụ: chia làm 5 bước)
+        const stepSize = Math.ceil(maxY / 5);
+
         var barOptions = {
-        chart: {
-            height: 256,
-            type: "bar",
-            stacked: false
-        },
-        plotOptions: {
-            bar: {
-            horizontal: false,
-            columnWidth: "20%"
-            }
-        },
-        dataLabels: { enabled: false },
-        stroke: {
-            show: true,
-            width: 0,
-            colors: ["transparent"]
-        },
-        series: data.series,
-        zoom: { enabled: false },
-        legend: { show: false },
-        colors: $("#high-performing-product").data("colors") ? $("#high-performing-product").data("colors").split(",") : barColors,
-        xaxis: {
-            categories: data.categories,
-            axisBorder: { show: false }
-        },
-        yaxis: {
-            stepSize: 40,
-            labels: {
-            formatter: function (value) {
-                return value + "k";
+            chart: {
+                height: 256,
+                type: "bar",
+                stacked: false
             },
-            offsetX: -15
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: "20%"
+                }
+            },
+            dataLabels: { enabled: false },
+            stroke: {
+                show: true,
+                width: 0,
+                colors: ["transparent"]
+            },
+            series: data.series,
+            zoom: { enabled: false },
+            legend: { show: false },
+            colors: $("#high-performing-product").data("colors") ? $("#high-performing-product").data("colors").split(",") : barColors,
+            xaxis: {
+                categories: data.categories,
+                axisBorder: { show: false }
+            },
+            yaxis: {
+                tickAmount: 5,
+                labels: {
+                    formatter: function (value) {
+                        return value + "k";
+                    },
+                    offsetX: -15
+                }
+            },
+            fill: { opacity: 1 },
+            tooltip: {
+                y: {
+                    formatter: function (value) {
+                        return "$" + value + "k";
+                    }
+                }
             }
-        },
-        fill: { opacity: 1 },
-        tooltip: {
-            y: {
-            formatter: function (value) {
-                return "$" + value + "k";
-            }
-            }
-        }
         };
+
         new ApexCharts(document.querySelector("#high-performing-product"), barOptions).render();
     })
     .catch(error => {
