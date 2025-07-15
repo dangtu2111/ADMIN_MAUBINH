@@ -152,7 +152,6 @@
                 console.error('Error fetching chart data:', error);
             });
 
-        // Donut Chart (#average-sales)
         fetch('/device-chi-win-rate', {
             method: 'GET',
             headers: {
@@ -160,32 +159,54 @@
                 'Accept': 'application/json'
             }
         })
-        .then(res => res.json())
-        .then(data => {
-            var donutColors = document.querySelector("#average-sales").dataset.colors;
-            var colors = donutColors ? donutColors.split(",") : ["#727cf5", "#0acf97", "#fa5c7c", "#ffbc00"];
-
-            var donutOptions = {
-                chart: {
-                    height: 202,
-                    type: "donut"
-                },
-                labels: data.labels,
-                series: data.series,
-                colors: colors,
-                legend: { show: true },
-                stroke: { width: 0 },
-                responsive: [{
-                    breakpoint: 480,
-                    options: {
-                        chart: { width: 200 },
-                        legend: { position: "bottom" }
+            .then(res => res.json())
+            .then(data => {
+                const generateColors = (n) => {
+                    const colors = [];
+                    for (let i = 0; i < n; i++) {
+                        const hue = (i * 360 / n) % 360;
+                        colors.push(`hsl(${hue}, 70%, 60%)`);
                     }
-                }]
-            };
-            new ApexCharts(document.querySelector("#average-sales"), donutOptions).render();
-        })
-        .catch(err => console.error("Lỗi biểu đồ chi chiến thắng:", err));
+                    return colors;
+                };
+
+                const colors = generateColors(data.labels.length);
+
+                // Render Donut Chart
+                const donutOptions = {
+                    chart: { height: 202, type: "donut" },
+                    labels: data.labels,
+                    series: data.series,
+                    colors: colors,
+                    legend: { show: true },
+                    stroke: { width: 0 },
+                    responsive: [{
+                        breakpoint: 480,
+                        options: {
+                            chart: { width: 200 },
+                            legend: { position: "bottom" }
+                        }
+                    }]
+                };
+
+                new ApexCharts(document.querySelector("#average-sales"), donutOptions).render();
+
+                // Cập nhật chú thích dưới biểu đồ
+                const legendList = document.getElementById("chart-widget-list");
+                legendList.innerHTML = ""; // Xóa cũ
+
+                data.labels.forEach((label, i) => {
+                    const color = colors[i];
+                    const value = data.series[i].toLocaleString();
+
+                    const p = document.createElement("p");
+                    p.innerHTML = `<i class="mdi mdi-square" style="color: ${color}"></i> ${label}
+                       <span class="float-end">$${value}</span>`;
+                    legendList.appendChild(p);
+                });
+            })
+            .catch(err => console.error("Lỗi biểu đồ chi chiến thắng:", err));
+
 
     };
 
