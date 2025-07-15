@@ -38,7 +38,6 @@ class HandResultController extends Controller
         if ($request->has('chi_losses') && is_numeric($request->chi_losses)) {
             $query->where('chi_losses', '>=', $request->chi_losses);
         }
-        $query->whereRaw('(chi_wins * 2* 0.98 - chi_losses * 2)  != money');
 
         // Áp dụng phân trang
         $handresults = $query->orderBy('created_at', 'desc')->paginate($perPage);
