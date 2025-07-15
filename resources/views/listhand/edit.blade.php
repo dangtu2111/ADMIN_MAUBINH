@@ -21,7 +21,11 @@
             <div class="card-body">
                 <h4 class="header-title">Chỉnh sửa thông tin ván chơi</h4>
                 <p class="text-muted font-14">Cập nhật thông tin chi tiết của ván chơi</p>
-
+                @if($handResult->chi_wins == 0)
+                    <input type="hidden" id="result_money" value="0"/>
+                @else
+                    <input type="hidden" id="result_money" value="{{ abs($handResult->money) / $handResult->chi_wins }}"/>
+                @endif
                 <!-- Hiển thị thông báo lỗi -->
                 @if ($errors->any())
                     <div class="alert alert-danger">
@@ -32,7 +36,7 @@
                         </ul>
                     </div>
                 @endif
-
+                
                 <!-- Hiển thị thông báo flash -->
                 @if (session('success'))
                     <div class="alert alert-success">
@@ -122,8 +126,8 @@
         const chiWinsInput = document.getElementById('chi_wins');
         const chiLossesInput = document.getElementById('chi_losses');
         const moneyInput = document.getElementById('money');
-        const moneyInitial = {{ $handResult->money }};
-        const chiWinsInitial = {{ $handResult->chi_wins }};
+        const moneyInitial = Math.abs(parseFloat(document.getElementById('result_money').value));
+       
 
         function calculateMoney() {
             let chiWins = parseInt(chiWinsInput.value) || 0;
@@ -141,7 +145,7 @@
             }
 
             // Tính tiền theo công thức
-            const money = (chiWins * (moneyInitial / chiWinsInitial) * 0.98) - (chiLosses * (moneyInitial / chiWinsInitial));
+            const money = (chiWins * moneyInitial * 0.98) - (chiLosses * moneyInitial);
             moneyInput.value = money.toFixed(2);
         }
 

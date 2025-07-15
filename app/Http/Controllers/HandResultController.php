@@ -91,7 +91,7 @@ class HandResultController extends Controller
             'hand_type' => 'nullable|string|max:255',
             'chi_wins' => 'required|integer|min:0',
             'chi_losses' => 'required|integer|min:0',
-            'money' => 'required|numeric|min:0',
+            'money' => 'required|numeric',
             'first_chi_rank' => 'required|string|max:255',
             'middle_chi_rank' => 'required|string|max:255',
             'last_chi_rank' => 'required|string|max:255',
