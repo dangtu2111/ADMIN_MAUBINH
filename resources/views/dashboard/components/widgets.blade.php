@@ -43,7 +43,7 @@
                 <h3 class="mt-3 mb-3">+ 352 Chi</h3>
                 <p class="mb-0 text-muted">
                     <span class="text-danger me-2"><i class="mdi mdi-arrow-down-bold"></i> 7.00%</span>
-                    <span class="text-nowrap">Since last 7day</span>
+                    <span class="text-nowrap">Since last day</span>
                 </p>
             </div> <!-- end card-body-->
         </div> <!-- end card-->
