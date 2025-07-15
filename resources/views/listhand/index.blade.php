@@ -1,4 +1,4 @@
-```php
+
 @extends('layout.index')
 
 @section('content')
