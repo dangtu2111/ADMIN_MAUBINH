@@ -53,14 +53,14 @@ class HandResultController extends Controller
 
         // Kiểm tra quyền: Chỉ admin hoặc người sở hữu thiết bị được xóa
         if (Auth::user()->role !== 'admin' && $handResult->device->id_user !== Auth::id()) {
-            return redirect()->route('listhand.index')->with('error', 'Bạn không có quyền xóa bản ghi này.');
+            return redirect()->back()->with('error', 'Bạn không có quyền xóa bản ghi này.');
         }
 
         // Xóa bản ghi
         $handResult->delete();
 
         // Redirect về danh sách với thông báo thành công
-        return redirect()->route('listhand.index')->with('success', 'Xóa bản ghi thành công.');
+        return redirect()->back()->with('success', 'Xóa bản ghi thành công.');
     }
     public function edit($id)
     {
