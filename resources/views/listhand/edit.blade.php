@@ -22,11 +22,11 @@
                 <h4 class="header-title">Chỉnh sửa thông tin ván chơi</h4>
                 <p class="text-muted font-14">Cập nhật thông tin chi tiết của ván chơi</p>
                 @if($handResult->chi_wins > 0)
-                    <input type="hidden" id="result_money" value="{{ abs($handResult->money) / $handResult->chi_wins }}" />
+                <input type="hidden" id="result_money" value="{{ abs($handResult->money) / $handResult->chi_wins }}" />
                 @elseif($handResult->chi_losses > 0)
-                    <input type="hidden" id="result_money" value="{{ abs($handResult->money) / $handResult->chi_losses }}" />
+                <input type="hidden" id="result_money" value="{{ abs($handResult->money) / $handResult->chi_losses }}" />
                 @else
-                    <input type="hidden" id="result_money" value="0" />
+                <input type="hidden" id="result_money" value="0" />
                 @endif
                 <!-- Hiển thị thông báo lỗi -->
                 @if ($errors->any())
@@ -63,6 +63,21 @@
                         <form action="{{ route('hand-results.update', $handResult->id) }}" method="POST">
                             @csrf
                             @method('POST')
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">ID Thiết bị</label>
+                                        <input type="text" name="id_device" id="hand_type" class="form-control" value="{{ $handResult->device->serial }}" readonly>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Ngày tạo</label>
+                                        <input type="text" name="date-time" class="form-control" value="{{ $handResult->created_at }}" readonly>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div class="row">
                                 <div class="col-lg-6">
@@ -113,25 +128,25 @@
                             <div class="row">
                                 <div class="col-lg-4">
                                     <div class="mb-3">
-                                    <label class="form-label">Chi đầu</label>
-                                    <input type="text" name="first_hand" id="first_hand" class="form-control" value="{{ old('first_hand', $handResult->gameSession->first_hand) }}" readonly>
-                                </div>
-                                </div>
-                                <div class="col-lg-4">
-                                    <div class="mb-3">
-                                    <label class="form-label">Chi giữa</label>
-                                    <input type="text" name="middle_hand" id="middle_hand" class="form-control" value="{{ old('middle_hand', $handResult->gameSession->middle_hand) }}" readonly>
-                                </div>
+                                        <label class="form-label">Chi đầu</label>
+                                        <input type="text" name="first_hand" id="first_hand" class="form-control" value="{{ old('first_hand', $handResult->gameSession->first_hand) }}" readonly>
+                                    </div>
                                 </div>
                                 <div class="col-lg-4">
                                     <div class="mb-3">
-                                    <label class="form-label">Chi cuối</label>
-                                    <input type="text" name="last_hand" id="last_hand" class="form-control" value="{{ old('last_hand', $handResult->gameSession->last_hand) }}" readonly>
+                                        <label class="form-label">Chi giữa</label>
+                                        <input type="text" name="middle_hand" id="middle_hand" class="form-control" value="{{ old('middle_hand', $handResult->gameSession->middle_hand) }}" readonly>
+                                    </div>
                                 </div>
+                                <div class="col-lg-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Chi cuối</label>
+                                        <input type="text" name="last_hand" id="last_hand" class="form-control" value="{{ old('last_hand', $handResult->gameSession->last_hand) }}" readonly>
+                                    </div>
                                 </div>
-                                
+
                             </div>
-                           
+
                             <div class="d-flex justify-content-end">
                                 <button type="submit" class="btn btn-primary me-2">Cập nhật</button>
                                 <a href="{{ route('listhand.index') }}" class="btn btn-secondary">Hủy</a>
