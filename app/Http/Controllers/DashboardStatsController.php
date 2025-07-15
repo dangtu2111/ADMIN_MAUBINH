@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+
 
 class DashboardStatsController extends Controller
 {
@@ -130,5 +134,89 @@ class DashboardStatsController extends Controller
         ];
 
         return response()->json($chartData);
+    }
+    public function lineChartData()
+    {
+        $user = Auth::user();
+        $userId = $user->id;
+        $isAdmin = $user->role === 'admin';
+
+        $currentWeekStart = now()->startOfWeek()->startOfDay();
+        $currentWeekEnd = now()->endOfWeek()->endOfDay();
+        $previousWeekStart = now()->subWeek()->startOfWeek()->startOfDay();
+        $previousWeekEnd = now()->subWeek()->endOfWeek()->endOfDay();
+
+        $days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        $currentWeekData = array_fill(0, 7, 0);
+        $previousWeekData = array_fill(0, 7, 0);
+
+        // Truy vấn current week
+        $currentWeekQuery = DB::table('hand_results')
+            ->selectRaw('DAYOFWEEK(created_at) as day_of_week, SUM(money) as total_money')
+            ->whereBetween('created_at', [$currentWeekStart, $currentWeekEnd]);
+
+        // Truy vấn previous week
+        $previousWeekQuery = DB::table('hand_results')
+            ->selectRaw('DAYOFWEEK(created_at) as day_of_week, SUM(money) as total_money')
+            ->whereBetween('created_at', [$previousWeekStart, $previousWeekEnd]);
+
+        // Nếu không phải admin, lọc theo id_user của thiết bị
+        if (!$isAdmin) {
+            $currentWeekQuery->join('devices', 'hand_results.device_id', '=', 'devices.id')
+                ->where('devices.id_user', $userId);
+
+            $previousWeekQuery->join('devices', 'hand_results.device_id', '=', 'devices.id')
+                ->where('devices.id_user', $userId);
+        }
+
+        $currentWeekResults = $currentWeekQuery->groupBy('day_of_week')->get();
+        $previousWeekResults = $previousWeekQuery->groupBy('day_of_week')->get();
+
+        // Gán kết quả vào mảng đúng thứ
+        foreach ($currentWeekResults as $row) {
+            $index = ($row->day_of_week + 5) % 7; // 1=Sun → 6, 2=Mon → 0
+            $currentWeekData[$index] = round($row->total_money, 2);
+        }
+
+        foreach ($previousWeekResults as $row) {
+            $index = ($row->day_of_week + 5) % 7;
+            $previousWeekData[$index] = round($row->total_money, 2);
+        }
+
+        return response()->json([
+            'current_week' => $currentWeekData,
+            'previous_week' => $previousWeekData
+        ]);
+    }
+    public function getDeviceChiWinRate(): JsonResponse
+    {
+        // Lấy dữ liệu tổng số chi_wins và chi_losses theo từng thiết bị
+        $results = DB::table('hand_results')
+            ->join('devices', 'hand_results.id_device', '=', 'devices.id')
+            ->select(
+                'devices.serial as device_name',
+                DB::raw('SUM(chi_wins) as total_wins'),
+                DB::raw('SUM(chi_losses) as total_losses')
+            )
+            ->groupBy('hand_results.id_device', 'devices.serial')
+            ->get();
+
+        $labels = [];
+        $series = [];
+
+        foreach ($results as $row) {
+            $total = $row->total_wins - $row->total_losses;
+
+            // Tránh chia cho 0
+            if ($total > 0) {
+                $labels[] = $row->device_name;
+                $series[] = round(($row->total_wins / $total) * 100, 2); // phần trăm thắng
+            }
+        }
+
+        return response()->json([
+            'labels' => $labels,
+            'series' => $series
+        ]);
     }
 }

@@ -5,7 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\HandResultController;
-
+use App\Http\Controllers\DashboardStatsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -64,5 +64,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/hand-results/{id}', [HandResultController::class, 'update'])->name('hand-results.update');
     // Route hiển thị danh sách thiết bị
     Route::get('/devices', [DeviceController::class, 'index'])->name('devices.index');
+    Route::get('/line-chart-data', [DashboardStatsController::class, 'lineChartData'])->name('lineChartData');
+    Route::get('/device-chi-win-rate', [DashboardStatsController::class, 'getDeviceChiWinRate']);
+
 });
 ?>
