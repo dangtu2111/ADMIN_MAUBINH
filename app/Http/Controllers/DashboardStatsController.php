@@ -190,7 +190,7 @@ class DashboardStatsController extends Controller
     }
     public function getDeviceChiWinRate(): JsonResponse
     {
-        // Lấy dữ liệu tổng số chi_wins và chi_losses theo từng thiết bị
+        // Lấy tổng chi_wins và chi_losses theo từng thiết bị
         $results = DB::table('hand_results')
             ->join('devices', 'hand_results.id_device', '=', 'devices.id')
             ->select(
@@ -203,15 +203,25 @@ class DashboardStatsController extends Controller
 
         $labels = [];
         $series = [];
+        $totals = [];
 
+        // Tính tổng chi_wins - chi_losses cho từng thiết bị
         foreach ($results as $row) {
-            $total = $row->total_wins - $row->total_losses;
+            $netWin = $row->total_wins - $row->total_losses;
 
-            // Tránh chia cho 0
-            if ($total > 0) {
+            if ($netWin > 0) {
                 $labels[] = $row->device_name;
-                $series[] = round(($row->total_wins / $total) * 100, 2); // phần trăm thắng
+                $totals[] = $netWin;
             }
+        }
+
+        // Tổng tất cả netWin để tính phần trăm
+        $grandTotal = array_sum($totals);
+
+        // Tính phần trăm đóng góp của từng thiết bị
+        foreach ($totals as $value) {
+            $percent = $grandTotal > 0 ? round(($value / $grandTotal) * 100, 2) : 0;
+            $series[] = $percent;
         }
 
         return response()->json([
