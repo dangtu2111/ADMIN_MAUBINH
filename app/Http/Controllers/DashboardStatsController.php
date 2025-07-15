@@ -14,91 +14,88 @@ class DashboardStatsController extends Controller
 {
     public function getStats(): JsonResponse
     {
-        // Ngày hiện tại và khoảng thời gian
-        $now = Carbon::now(); // 2025-07-15
-        $weekStart = $now->copy()->subDays(6); // 7 ngày trước (2025-07-09)
-        $prevWeekStart = $weekStart->copy()->subDays(7); // 7 ngày trước đó (2025-07-02)
-        $prevWeekEnd = $weekStart; // 2025-07-08
-        $lastMonthStart = $now->copy()->subDays(30); // 30 ngày trước (2025-06-15)
-        $lastMonthEnd = $now; // 2025-07-15
-        $prevMonthStart = $lastMonthStart->copy()->subDays(30); // 2025-05-16
-        $prevMonthEnd = $lastMonthStart; // 2025-06-15
+        $now = Carbon::now(); // Hôm nay
+        $today = $now->copy()->startOfDay();
+        $yesterday = $now->copy()->subDay()->startOfDay();
 
-        // Tổng số chi ăn 1 tuần (chi_wins - chi_losses)
-        $weeklySpendingData = DB::table('hand_results')
-            ->whereBetween('created_at', [$weekStart, $now])
-            ->selectRaw('SUM(chi_wins) - SUM(chi_losses) as total')
-            ->first();
-        $weeklySpending = $weeklySpendingData ? (int) $weeklySpendingData->total : 0;
+        // Tuần này và tuần trước
+        $thisWeekStart = $now->copy()->subDays(6)->startOfDay();
+        $lastWeekStart = $thisWeekStart->copy()->subDays(7);
+        $lastWeekEnd = $thisWeekStart->copy()->subSecond();
 
-        $prevWeeklySpendingData = DB::table('hand_results')
-            ->whereBetween('created_at', [$prevWeekStart, $prevWeekEnd])
+        // Tháng này và tháng trước
+        $thisMonthStart = $now->copy()->subDays(30);
+        $lastMonthStart = $thisMonthStart->copy()->subDays(30);
+        $lastMonthEnd = $thisMonthStart->copy()->subSecond();
+
+        // 1️⃣ Chi ăn tuần này và tuần trước
+        $weeklySpending = DB::table('hand_results')
+            ->whereBetween('created_at', [$thisWeekStart, $now])
             ->selectRaw('SUM(chi_wins) - SUM(chi_losses) as total')
-            ->first();
-        $prevWeeklySpending = $prevWeeklySpendingData ? (int) $prevWeeklySpendingData->total : 0;
+            ->value('total') ?? 0;
+
+        $prevWeeklySpending = DB::table('hand_results')
+            ->whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])
+            ->selectRaw('SUM(chi_wins) - SUM(chi_losses) as total')
+            ->value('total') ?? 0;
 
         $weeklySpendingChange = $prevWeeklySpending != 0
             ? (($weeklySpending - $prevWeeklySpending) / abs($prevWeeklySpending)) * 100
             : ($weeklySpending > 0 ? 100 : 0);
 
-        // Số thiết bị online
-        $onlineDevices = DB::table('devices')
-            ->where('status', 'active')
-            ->count();
-
-        $prevOnlineDevices = DB::table('devices')
-            ->where('status', 'active')
-            ->whereBetween('created_at', [$prevMonthStart, $prevMonthEnd])
-            ->count();
-
-        $onlineDevicesChange = $prevOnlineDevices > 0
-            ? (($onlineDevices - $prevOnlineDevices) / $prevOnlineDevices) * 100
-            : ($onlineDevices > 0 ? 100 : 0);
-
-        // Tổng số chi ăn 1 ngày (chi_wins - chi_losses)
-        $dailySpendingData = DB::table('hand_results')
-            ->whereDate('created_at', $now->toDateString())
+        // 2️⃣ Chi ăn hôm nay và hôm qua
+        $dailySpending = DB::table('hand_results')
+            ->whereDate('created_at', $today)
             ->selectRaw('SUM(chi_wins) - SUM(chi_losses) as total')
-            ->first();
-        $dailySpending = $dailySpendingData ? (int) $dailySpendingData->total : 0;
+            ->value('total') ?? 0;
 
-        $prevDailySpendingData = DB::table('hand_results')
-            ->whereDate('created_at', $weekStart->toDateString())
+        $prevDailySpending = DB::table('hand_results')
+            ->whereDate('created_at', $yesterday)
             ->selectRaw('SUM(chi_wins) - SUM(chi_losses) as total')
-            ->first();
-        $prevDailySpending = $prevDailySpendingData ? (int) $prevDailySpendingData->total : 0;
+            ->value('total') ?? 0;
 
         $dailySpendingChange = $prevDailySpending != 0
             ? (($dailySpending - $prevDailySpending) / abs($prevDailySpending)) * 100
             : ($dailySpending > 0 ? 100 : 0);
 
-        // Lợi nhuận tuần
+        // 3️⃣ Thiết bị online hiện tại và trong tháng trước
+        $onlineDevices = DB::table('devices')->where('status', 'active')->count();
+
+        $prevOnlineDevices = DB::table('devices')
+            ->where('status', 'active')
+            ->whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])
+            ->count();
+
+        $onlineDevicesChange = $prevOnlineDevices != 0
+            ? (($onlineDevices - $prevOnlineDevices) / $prevOnlineDevices) * 100
+            : ($onlineDevices > 0 ? 100 : 0);
+
+        // 4️⃣ Lợi nhuận tuần này và tuần trước
         $weeklyProfit = DB::table('hand_results')
-            ->whereBetween('created_at', [$weekStart, $now])
+            ->whereBetween('created_at', [$thisWeekStart, $now])
             ->sum('money');
 
         $prevWeeklyProfit = DB::table('hand_results')
-            ->whereBetween('created_at', [$prevMonthStart, $prevMonthEnd])
+            ->whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])
             ->sum('money');
 
-        $weeklyProfitChange = $prevWeeklyProfit > 0
+        $weeklyProfitChange = $prevWeeklyProfit != 0
             ? (($weeklyProfit - $prevWeeklyProfit) / $prevWeeklyProfit) * 100
             : ($weeklyProfit > 0 ? 100 : 0);
 
-        // Trả về dữ liệu JSON
-        $stats = [
-            'weeklySpending' => $weeklySpending,
+        // ✅ Kết quả
+        return response()->json([
+            'weeklySpending'       => (int) $weeklySpending,
             'weeklySpendingChange' => round($weeklySpendingChange, 2),
-            'onlineDevices' => (int) $onlineDevices,
-            'onlineDevicesChange' => round($onlineDevicesChange, 2),
-            'dailySpending' => $dailySpending,
-            'dailySpendingChange' => round($dailySpendingChange, 2),
-            'weeklyProfit' => round($weeklyProfit, 2),
-            'weeklyProfitChange' => round($weeklyProfitChange, 2)
-        ];
-
-        return response()->json($stats);
+            'dailySpending'        => (int) $dailySpending,
+            'dailySpendingChange'  => round($dailySpendingChange, 2),
+            'onlineDevices'        => $onlineDevices,
+            'onlineDevicesChange'  => round($onlineDevicesChange, 2),
+            'weeklyProfit'         => round($weeklyProfit, 2),
+            'weeklyProfitChange'   => round($weeklyProfitChange, 2),
+        ]);
     }
+
     public function getChartData(): JsonResponse
     {
         // Xác định tuần hiện tại (từ thứ Hai đến Chủ Nhật)

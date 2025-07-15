@@ -75,48 +75,49 @@
                             </div>
                         </div>
                     </form>
-                    <table id="datatable-buttons" class="table table-striped dt-responsive nowrap w-100 mb-0 dataTable dtr-inline" aria-describedby="datatable-buttons_info" style="width: 100%;">
+                    <table id="datatable-buttons" class="table table-striped dt-responsive nowrap w-100 mb-0 dataTable dtr-inline collapsed" aria-describedby="datatable-buttons_info" style="width: 100%;">
                         <colgroup>
-                            <col data-dt-column="0" style="min-width: 100px;">
-                            <col data-dt-column="1" style="min-width: 120px;">
-                            <col data-dt-column="2" style="min-width: 100px;">
-                            <col data-dt-column="3" style="min-width: 100px;">
-                            <col data-dt-column="4" style="min-width: 120px;">
-                            <col data-dt-column="5" style="min-width: 100px;">
-                            <col data-dt-column="6" style="min-width: 100px;">
-                            <col data-dt-column="7" style="min-width: 100px;">
-                            <col data-dt-column="8" style="min-width: 120px;">
+                            <col style="width: 160px;">
+                            <col style="width: 200px;">
+                            <col style="width: 120px;">
+                            <col style="width: 120px;">
+                            <col style="width: 150px;">
+                            <col style="width: 130px;">
+                            <col style="width: 130px;">
+                            <col style="width: 130px;">
+                            <col style="width: 130px;">
+                            <col style="width: 100px;">
                         </colgroup>
                         <thead>
                             <tr>
-                                <th data-dt-column="0" class="dt-orderable-asc dt-orderable-desc dt-ordering-asc" aria-sort="ascending">
+                                <th class="dt-orderable-asc dt-orderable-desc dt-ordering-asc" aria-sort="ascending">
                                     <div class="dt-column-header"><span class="dt-column-title">Serial</span><span class="dt-column-order" role="button" aria-label="Serial: Sắp xếp" tabindex="0"></span></div>
                                 </th>
-                                <th data-dt-column="1" class="dt-type-date dt-orderable-asc dt-orderable-desc">
+                                <th class="dt-type-date dt-orderable-asc dt-orderable-desc">
                                     <div class="dt-column-header"><span class="dt-column-title">Ngày tạo</span><span class="dt-column-order" role="button" aria-label="Ngày tạo: Sắp xếp" tabindex="0"></span></div>
                                 </th>
-                                <th data-dt-column="2" class="dt-type-numeric dt-orderable-asc dt-orderable-desc">
+                                <th class="dt-type-numeric dt-orderable-asc dt-orderable-desc">
                                     <div class="dt-column-header"><span class="dt-column-title">Thắng Chi</span><span class="dt-column-order" role="button" aria-label="Thắng Chi: Sắp xếp" tabindex="0"></span></div>
                                 </th>
-                                <th data-dt-column="3" class="dt-type-numeric dt-orderable-asc dt-orderable-desc">
+                                <th class="dt-type-numeric dt-orderable-asc dt-orderable-desc">
                                     <div class="dt-column-header"><span class="dt-column-title">Thua Chi</span><span class="dt-column-order" role="button" aria-label="Thua Chi: Sắp xếp" tabindex="0"></span></div>
                                 </th>
-                                <th data-dt-column="4" class="dt-type-numeric dt-orderable-asc dt-orderable-desc">
+                                <th class="dt-type-numeric dt-orderable-asc dt-orderable-desc">
                                     <div class="dt-column-header"><span class="dt-column-title">Tổng tiền</span><span class="dt-column-order" role="button" aria-label="Tổng tiền: Sắp xếp" tabindex="0"></span></div>
                                 </th>
-                                <th data-dt-column="5" class="dt-orderable-asc dt-orderable-desc">
+                                <th class="dt-orderable-asc dt-orderable-desc">
                                     <div class="dt-column-header"><span class="dt-column-title">Loại Hand</span><span class="dt-column-order" role="button" aria-label="Loại Hand: Sắp xếp" tabindex="0"></span></div>
                                 </th>
-                                <th data-dt-column="6" class="dt-type-numeric dt-orderable-asc dt-orderable-desc">
+                                <th class="dt-type-numeric dt-orderable-asc dt-orderable-desc">
                                     <div class="dt-column-header"><span class="dt-column-title">Xếp hạng Chi 1</span><span class="dt-column-order" role="button" aria-label="Xếp hạng Chi 1: Sắp xếp" tabindex="0"></span></div>
                                 </th>
-                                <th data-dt-column="7" class="dt-type-numeric dt-orderable-asc dt-orderable-desc">
+                                <th class="dt-type-numeric dt-orderable-asc dt-orderable-desc">
                                     <div class="dt-column-header"><span class="dt-column-title">Xếp hạng Chi 2</span><span class="dt-column-order" role="button" aria-label="Xếp hạng Chi 2: Sắp xếp" tabindex="0"></span></div>
                                 </th>
-                                <th data-dt-column="8" class="dt-type-numeric dt-orderable-asc dt-orderable-desc">
+                                <th class="dt-type-numeric dt-orderable-asc dt-orderable-desc">
                                     <div class="dt-column-header"><span class="dt-column-title">Xếp hạng Chi 3</span><span class="dt-column-order" role="button" aria-label="Xếp hạng Chi 3: Sắp xếp" tabindex="0"></span></div>
                                 </th>
-                                <th data-dt-column="9" class="dt-orderable-none">
+                                <th class="dt-orderable-none">
                                     <div class="dt-column-header"><span class="dt-column-title">Hành động</span></div>
                                 </th>
                             </tr>
@@ -125,7 +126,7 @@
                             @foreach ($handresults as $handresult)
                             <tr>
                                 <td class="sorting_1 dtr-control" tabindex="0">{{ $handresult->device->serial ?? 'N/A' }}</td>
-                                <td class="dt-type-date">{{ $handresult->created_at ? $handresult->created_at->format('Y/m/d H:i') : 'N/A' }}</td>
+                                <td>{{ $handresult->created_at ? $handresult->created_at->format('Y/m/d H:i') : 'N/A' }}</td>
                                 <td class="dt-type-numeric">{{ $handresult->chi_wins ?? 0 }}</td>
                                 <td class="dt-type-numeric">{{ $handresult->chi_losses ?? 0 }}</td>
                                 <td class="dt-type-numeric">{{ number_format($handresult->money ?? 0, 2) }}</td>
@@ -144,8 +145,8 @@
                             </tr>
                             @endforeach
                         </tbody>
-                        <tfoot></tfoot>
                     </table>
+
                     <div class="d-md-flex justify-content-between align-items-center mt-2">
                         <div class="dt-info" aria-live="polite" id="datatable-buttons_info" role="status">Hiển thị {{ $handresults->count() > 0 ? 1 : 0 }} đến {{ $handresults->count() }} trong tổng số {{ $handresults->total() }} bản ghi</div>
                         <div class="dt-paging">

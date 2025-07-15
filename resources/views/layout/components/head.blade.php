@@ -27,4 +27,5 @@
     <link href="/css/unicons.css" rel="stylesheet" type="text/css">
     <link href="/css/remixicon.css" rel="stylesheet" type="text/css">
     <link href="/css/materialdesignicons.min.css" rel="stylesheet" type="text/css">
+    @yield('style')
 </head>
