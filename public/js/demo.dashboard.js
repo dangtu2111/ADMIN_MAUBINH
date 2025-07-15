@@ -201,7 +201,7 @@
 
                     const p = document.createElement("p");
                     p.innerHTML = `<i class="mdi mdi-square" style="color: ${color}"></i> ${label}
-                       <span class="float-end">$${value}</span>`;
+                       <span class="float-end">${value}%</span>`;
                     legendList.appendChild(p);
                 });
             })
