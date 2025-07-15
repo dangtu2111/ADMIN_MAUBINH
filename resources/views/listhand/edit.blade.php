@@ -22,7 +22,7 @@
                 <h4 class="header-title">Chỉnh sửa thông tin ván chơi</h4>
                 <p class="text-muted font-14">Cập nhật thông tin chi tiết của ván chơi</p>
                 @if($handResult->chi_wins == 0)
-                <input type="hidden" id="result_money" value="0" />
+                <input type="hidden" id="result_money" value="{{ abs($handResult->money) / $handResult->chi_losses }}" />
                 @else
                 <input type="hidden" id="result_money" value="{{ abs($handResult->money) / $handResult->chi_wins }}" />
                 @endif
