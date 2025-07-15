@@ -5,8 +5,8 @@
                 <div class="float-end">
                     <i class="mdi mdi-account-multiple widget-icon"></i>
                 </div>
-                <h5 class="text-muted fw-normal mt-0" title="Number of Customers">Lợi nhuận 1 tuần gần đây </h5>
-                <h3 class="mt-3 mb-3">36,254</h3>
+                <h5 class="text-muted fw-normal mt-0" title="Number of Customers">Tổng số chi ăn 1 tuần </h5>
+                <h3 class="mt-3 mb-3">+ 352 Chi</h3>
                 <p class="mb-0 text-muted">
                     <span class="text-success me-2"><i class="mdi mdi-arrow-up-bold"></i> 5.27%</span>
                     <span class="text-nowrap">Since last month</span>
@@ -39,8 +39,8 @@
                 <div class="float-end">
                     <i class="mdi mdi-currency-usd widget-icon"></i>
                 </div>
-                <h5 class="text-muted fw-normal mt-0" title="Average Revenue">1 Tuần</h5>
-                <h3 class="mt-3 mb-3">+ 30.56%&lt;</h3>
+                <h5 class="text-muted fw-normal mt-0" title="Average Revenue">Tổng số chi ăn 1 ngày</h5>
+                <h3 class="mt-3 mb-3">+ 352 Chi</h3>
                 <p class="mb-0 text-muted">
                     <span class="text-danger me-2"><i class="mdi mdi-arrow-down-bold"></i> 7.00%</span>
                     <span class="text-nowrap">Since last 7day</span>
@@ -55,8 +55,8 @@
                 <div class="float-end">
                     <i class="mdi mdi-pulse widget-icon"></i>
                 </div>
-                <h5 class="text-muted fw-normal mt-0" title="Growth">1 tháng</h5>
-                <h3 class="mt-3 mb-3">+ 30.56%</h3>
+                <h5 class="text-muted fw-normal mt-0" title="Growth">Lợi nhuận tuần </h5>
+                <h3 class="mt-3 mb-3">+ 3.000K</h3>
                 <p class="mb-0 text-muted">
                     <span class="text-success me-2"><i class="mdi mdi-arrow-up-bold"></i> 4.87%</span>
                     <span class="text-nowrap">Since last month</span>

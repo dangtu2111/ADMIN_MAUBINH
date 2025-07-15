@@ -13,6 +13,11 @@ use App\Http\Controllers\AuthController;
 | is assigned the "api" middleware group.
 |
 */
+use App\Http\Controllers\DashboardStatsController;
+
+
+Route::get('/dashboard-stats', [DashboardStatsController::class, 'getStats']);
+Route::get('/chart-data', [DashboardStatsController::class, 'getChartData']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/game-sessions', [GameSessionController::class, 'store'])->name('game-sessions.store');

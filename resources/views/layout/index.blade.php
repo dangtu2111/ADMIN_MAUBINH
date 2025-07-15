@@ -65,6 +65,7 @@
 
     @include('layout.components.script')
 
+    @yield('script')
 
 
 

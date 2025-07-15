@@ -438,3 +438,7 @@
 
          
  @endsection
+ @section('script')
+<script src="js/update-dashboard.js"></script>
+
+ @endsection
