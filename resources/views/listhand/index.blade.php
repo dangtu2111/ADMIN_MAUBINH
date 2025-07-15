@@ -89,7 +89,7 @@
                                     <td class="dt-type-numeric">{{ $handresult->last_chi_rank ?? 'N/A' }}</td>
                                     <td>
                                         <a href="#" class="btn btn-sm btn-primary">Sửa</a>
-                                        <form action="#" method="POST" style="display:inline;">
+                                        <form action="{{ route('hand-results.destroy', $handresult->id) }}" method="POST" style="display:inline;">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa bản ghi này?')">Xóa</button>

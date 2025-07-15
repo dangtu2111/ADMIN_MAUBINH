@@ -58,6 +58,7 @@ Route::middleware('auth')->group(function () {
 
     // Route cho danh sách hand
     Route::get('/listhand', [HandResultController::class, 'index'])->name('listhand.index');
+    Route::delete('/hand-results/{id}', [HandResultController::class, 'destroy'])->name('hand-results.destroy');
     // Route hiển thị danh sách thiết bị
     Route::get('/devices', [DeviceController::class, 'index'])->name('devices.index');
 });

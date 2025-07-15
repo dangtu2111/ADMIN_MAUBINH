@@ -35,5 +35,21 @@ class HandResultController extends Controller
         // Trả về view với dữ liệu phân trang
         return view('listhand.index', compact('handresults'));
     }
+    public function destroy(Request $request, $id)
+    {
+        // Tìm bản ghi HandResult
+        $handResult = HandResult::with('device')->findOrFail($id);
+
+        // Kiểm tra quyền: Chỉ admin hoặc người sở hữu thiết bị được xóa
+        if (Auth::user()->role !== 'admin' && $handResult->device->id_user !== Auth::id()) {
+            return redirect()->route('listhand.index')->with('error', 'Bạn không có quyền xóa bản ghi này.');
+        }
+
+        // Xóa bản ghi
+        $handResult->delete();
+
+        // Redirect về danh sách với thông báo thành công
+        return redirect()->route('listhand.index')->with('success', 'Xóa bản ghi thành công.');
+    }
 }
 ?>
