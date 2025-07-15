@@ -65,7 +65,7 @@ class HandResultController extends Controller
     public function edit($id)
     {
         // Tìm bản ghi HandResult
-        $handResult = HandResult::with('device')->findOrFail($id);
+        $handResult = HandResult::with('device','gameSession')->findOrFail($id);
 
         // Kiểm tra quyền: Chỉ admin hoặc người sở hữu thiết bị được chỉnh sửa
         if (Auth::user()->role !== 'admin' && $handResult->device->id_user !== Auth::id()) {

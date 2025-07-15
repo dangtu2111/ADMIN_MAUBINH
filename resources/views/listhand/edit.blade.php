@@ -22,31 +22,31 @@
                 <h4 class="header-title">Chỉnh sửa thông tin ván chơi</h4>
                 <p class="text-muted font-14">Cập nhật thông tin chi tiết của ván chơi</p>
                 @if($handResult->chi_wins == 0)
-                    <input type="hidden" id="result_money" value="0"/>
+                <input type="hidden" id="result_money" value="0" />
                 @else
-                    <input type="hidden" id="result_money" value="{{ abs($handResult->money) / $handResult->chi_wins }}"/>
+                <input type="hidden" id="result_money" value="{{ abs($handResult->money) / $handResult->chi_wins }}" />
                 @endif
                 <!-- Hiển thị thông báo lỗi -->
                 @if ($errors->any())
-                    <div class="alert alert-danger">
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
                 @endif
-                
+
                 <!-- Hiển thị thông báo flash -->
                 @if (session('success'))
-                    <div class="alert alert-success">
-                        {{ session('success') }}
-                    </div>
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
                 @endif
                 @if (session('error'))
-                    <div class="alert alert-danger">
-                        {{ session('error') }}
-                    </div>
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
                 @endif
 
                 <ul class="nav nav-tabs nav-bordered mb-3" role="tablist">
@@ -108,7 +108,28 @@
                                     </div>
                                 </div>
                             </div>
-
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <div class="mb-3">
+                                    <label class="form-label">Chi đầu</label>
+                                    <input type="text" name="first_hand" id="first_hand" class="form-control" value="{{ old('first_hand', $handResult->gameSession->first_hand) }}" readonly>
+                                </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="mb-3">
+                                    <label class="form-label">Chi giữa</label>
+                                    <input type="text" name="middle_hand" id="middle_hand" class="form-control" value="{{ old('middle_hand', $handResult->gameSession->middle_hand) }}" readonly>
+                                </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="mb-3">
+                                    <label class="form-label">Chi cuối</label>
+                                    <input type="text" name="last_hand" id="last_hand" class="form-control" value="{{ old('last_hand', $handResult->gameSession->last_hand) }}" readonly>
+                                </div>
+                                </div>
+                                
+                            </div>
+                           
                             <div class="d-flex justify-content-end">
                                 <button type="submit" class="btn btn-primary me-2">Cập nhật</button>
                                 <a href="{{ route('listhand.index') }}" class="btn btn-secondary">Hủy</a>
@@ -122,12 +143,12 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const chiWinsInput = document.getElementById('chi_wins');
         const chiLossesInput = document.getElementById('chi_losses');
         const moneyInput = document.getElementById('money');
         const moneyInitial = Math.abs(parseFloat(document.getElementById('result_money').value));
-       
+
 
         function calculateMoney() {
             let chiWins = parseInt(chiWinsInput.value) || 0;
