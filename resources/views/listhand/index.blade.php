@@ -60,15 +60,15 @@
                 </form>
                     <table id="datatable-buttons" class="table table-striped dt-responsive nowrap w-100 mb-0 dataTable dtr-inline" aria-describedby="datatable-buttons_info" style="width: 100%;">
                         <colgroup>
-                            <col data-dt-column="0" style="width: 100px;">
-                            <col data-dt-column="1" style="width: 120px;">
-                            <col data-dt-column="2" style="width: 100px;">
-                            <col data-dt-column="3" style="width: 100px;">
-                            <col data-dt-column="4" style="width: 120px;">
-                            <col data-dt-column="5" style="width: 100px;">
-                            <col data-dt-column="6" style="width: 100px;">
-                            <col data-dt-column="7" style="width: 100px;">
-                            <col data-dt-column="8" style="width: 120px;">
+                            <col data-dt-column="0" style="min-width: 100px;">
+                            <col data-dt-column="1" style="min-width: 120px;">
+                            <col data-dt-column="2" style="min-width: 100px;">
+                            <col data-dt-column="3" style="min-width: 100px;">
+                            <col data-dt-column="4" style="min-width: 120px;">
+                            <col data-dt-column="5" style="min-width: 100px;">
+                            <col data-dt-column="6" style="min-width: 100px;">
+                            <col data-dt-column="7" style="min-width: 100px;">
+                            <col data-dt-column="8" style="min-width: 120px;">
                         </colgroup>
                         <thead>
                             <tr>
