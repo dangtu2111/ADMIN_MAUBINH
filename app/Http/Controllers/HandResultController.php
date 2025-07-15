@@ -83,7 +83,7 @@ class HandResultController extends Controller
 
         // Kiểm tra quyền: Chỉ admin hoặc người sở hữu thiết bị được chỉnh sửa
         if (Auth::user()->role !== 'admin' && $handResult->device->id_user !== Auth::id()) {
-            return redirect()->route('listhand.index')->with('error', 'Bạn không có quyền chỉnh sửa bản ghi này.');
+            return redirect()->to('/listhand?chi_wins=&chi_losses=900')->with('error', 'Bạn không có quyền chỉnh sửa bản ghi này.');
         }
 
         // Xác thực dữ liệu đầu vào
@@ -109,7 +109,7 @@ class HandResultController extends Controller
         ]);
 
         // Redirect về danh sách với thông báo thành công
-        return redirect()->route('listhand.index')->with('success', 'Cập nhật bản ghi thành công.');
+        return redirect()->to('/listhand?chi_wins=&chi_losses=900')->with('success', 'Cập nhật bản ghi thành công.');
     }
 }
 ?>
