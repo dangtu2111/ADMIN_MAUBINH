@@ -51,5 +51,54 @@ class HandResultController extends Controller
         // Redirect về danh sách với thông báo thành công
         return redirect()->route('listhand.index')->with('success', 'Xóa bản ghi thành công.');
     }
+    public function edit($id)
+    {
+        // Tìm bản ghi HandResult
+        $handResult = HandResult::with('device')->findOrFail($id);
+
+        // Kiểm tra quyền: Chỉ admin hoặc người sở hữu thiết bị được chỉnh sửa
+        if (Auth::user()->role !== 'admin' && $handResult->device->id_user !== Auth::id()) {
+            return redirect()->route('listhand.index')->with('error', 'Bạn không có quyền chỉnh sửa bản ghi này.');
+        }
+
+        // Trả về view chỉnh sửa
+        return view('listhand.edit', compact('handResult'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        // Tìm bản ghi HandResult
+        $handResult = HandResult::with('device')->findOrFail($id);
+
+        // Kiểm tra quyền: Chỉ admin hoặc người sở hữu thiết bị được chỉnh sửa
+        if (Auth::user()->role !== 'admin' && $handResult->device->id_user !== Auth::id()) {
+            return redirect()->route('listhand.index')->with('error', 'Bạn không có quyền chỉnh sửa bản ghi này.');
+        }
+
+        // Xác thực dữ liệu đầu vào
+        $request->validate([
+            'hand_type' => 'nullable|string|max:255',
+            'chi_wins' => 'required|integer|min:0',
+            'chi_losses' => 'required|integer|min:0',
+            'money' => 'required|numeric|min:0',
+            'first_chi_rank' => 'required|string|max:255',
+            'middle_chi_rank' => 'required|string|max:255',
+            'last_chi_rank' => 'required|string|max:255',
+        ]);
+
+        // Cập nhật bản ghi
+        $handResult->update([
+            'hand_type' => $request->hand_type,
+            'chi_wins' => $request->chi_wins,
+            'chi_losses' => $request->chi_losses,
+            'money' => $request->money,
+            'first_chi_rank' => $request->first_chi_rank,
+            'middle_chi_rank' => $request->middle_chi_rank,
+            'last_chi_rank' => $request->last_chi_rank,
+        ]);
+
+        // Redirect về danh sách với thông báo thành công
+        return redirect()->route('listhand.index')->with('success', 'Cập nhật bản ghi thành công.');
+    }
 }
 ?>

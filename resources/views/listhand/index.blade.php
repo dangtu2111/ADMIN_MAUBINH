@@ -88,7 +88,7 @@
                                     <td class="dt-type-numeric">{{ $handresult->middle_chi_rank ?? 'N/A' }}</td>
                                     <td class="dt-type-numeric">{{ $handresult->last_chi_rank ?? 'N/A' }}</td>
                                     <td>
-                                        <a href="#" class="btn btn-sm btn-primary">Sửa</a>
+                                        <a href="{{ route('hand-results.edit', $handresult->id) }}" class="btn btn-sm btn-primary">Sửa</a>
                                         <form action="{{ route('hand-results.destroy', $handresult->id) }}" method="POST" style="display:inline;">
                                             @csrf
                                             @method('DELETE')

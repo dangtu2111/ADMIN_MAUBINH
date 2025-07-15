@@ -59,6 +59,9 @@ Route::middleware('auth')->group(function () {
     // Route cho danh sách hand
     Route::get('/listhand', [HandResultController::class, 'index'])->name('listhand.index');
     Route::delete('/hand-results/{id}', [HandResultController::class, 'destroy'])->name('hand-results.destroy');
+    // Route cho chỉnh sửa HandResult
+    Route::get('/hand-results/{id}/edit', [HandResultController::class, 'edit'])->name('hand-results.edit');
+    Route::post('/hand-results/{id}', [HandResultController::class, 'update'])->name('hand-results.update');
     // Route hiển thị danh sách thiết bị
     Route::get('/devices', [DeviceController::class, 'index'])->name('devices.index');
 });

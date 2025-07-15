@@ -118,7 +118,6 @@ class GameSessionController extends Controller
 
             return $response;
         } catch (\Exception $e) {
-            dd($e);
             // Logging tối giản để giảm I/O
             \Log::error('Game session creation failed', [
                 'user_id' => Auth::id(),
