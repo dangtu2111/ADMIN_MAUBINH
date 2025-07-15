@@ -38,7 +38,7 @@ class GameSessionController extends Controller
             'last_hand' => ['required', 'string', 'max:255'],
             'chi_wins' => ['required', 'integer', 'min:0'],
             'chi_losses' => ['required', 'integer', 'min:0'],
-            'money' => ['required', 'numeric', 'min:0'],
+            'money' => ['required', 'numeric'],
             'hand_type' => ['required','string', 'max:30'],
             'first_chi_rank' =>['required', 'numeric', 'min:0'],
             'middle_chi_rank' => ['required', 'numeric', 'min:0'],
