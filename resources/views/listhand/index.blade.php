@@ -1,4 +1,3 @@
-
 @extends('layout.index')
 
 @section('content')
@@ -12,18 +11,18 @@
                     Danh sách các handresult và thống kê, bao gồm số serial, chủ sở hữu, ngày tạo, số lần thắng chi, thua chi, tổng tiền, loại hand, và xếp hạng chi.
                 </p>
 
-                
+
 
                 <!-- Hiển thị thông báo flash -->
                 @if (session('success'))
-                    <div class="alert alert-success">
-                        {{ session('success') }}
-                    </div>
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
                 @endif
                 @if (session('error'))
-                    <div class="alert alert-danger">
-                        {{ session('error') }}
-                    </div>
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
                 @endif
 
                 <div id="datatable-buttons_wrapper" class="dt-container dt-bootstrap5 dt-empty-footer">
@@ -35,29 +34,47 @@
                             <button class="btn btn-secondary buttons-print btn-sm" tabindex="0" aria-controls="datatable-buttons" type="button"><span>In</span></button>
                             <button class="btn btn-secondary buttons-pdf buttons-html5 btn-sm" tabindex="0" aria-controls="datatable-buttons" type="button"><span>PDF</span></button>
                         </div>
-                        
+
                         <div class="dt-search">
                             <label for="dt-search-2">Tìm kiếm:</label>
                             <input type="search" class="form-control form-control-sm" id="dt-search-2" placeholder="Nhập từ khóa..." aria-controls="datatable-buttons">
                         </div>
                     </div>
                     <!-- Form lọc -->
-                <form method="GET" action="{{ route('listhand.index') }}" class="mb-3">
-                    <div class="row g-2">
-                        <div class="col-md-3">
-                            <label for="chi_wins" class="form-label">Chi thắng tối thiểu</label>
-                            <input type="number" name="chi_wins" id="chi_wins" class="form-control" value="{{ request('chi_wins') }}" min="0" placeholder="Nhập số chi thắng">
+                    <form method="GET" action="{{ route('listhand.index') }}" class="mb-3">
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <label for="chi_wins" class="form-label">Chi thắng tối thiểu</label>
+                                <input type="number" name="chi_wins" id="chi_wins" class="form-control" value="{{ request('chi_wins') }}" min="0" placeholder="Nhập số chi thắng">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="chi_losses" class="form-label">Chi thua tối thiểu</label>
+                                <input type="number" name="chi_losses" id="chi_losses" class="form-control" value="{{ request('chi_losses') }}" min="0" placeholder="Nhập số chi thua">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="device_serial" class="form-label">Device serial</label>
+                                <select class="select2 form-control select2-multiple"
+                                    id="device_serial"
+                                    name="device_serial[]"
+                                    data-toggle="select2"
+                                    multiple="multiple"
+                                    data-placeholder="Choose ...">
+                                    @foreach ($devices as $device)
+                                    <option value="{{ $device->serial }}"
+                                        @if (is_array(request()->device_serial) && in_array($device->serial, request()->device_serial))
+                                        selected
+                                        @endif>
+                                        {{ $device->serial }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3 align-self-end">
+                                <button type="submit" class="btn btn-primary">Lọc</button>
+                                <a href="{{ route('listhand.index') }}" class="btn btn-secondary">Xóa bộ lọc</a>
+                            </div>
                         </div>
-                        <div class="col-md-3">
-                            <label for="chi_losses" class="form-label">Chi thua tối thiểu</label>
-                            <input type="number" name="chi_losses" id="chi_losses" class="form-control" value="{{ request('chi_losses') }}" min="0" placeholder="Nhập số chi thua">
-                        </div>
-                        <div class="col-md-3 align-self-end">
-                            <button type="submit" class="btn btn-primary">Lọc</button>
-                            <a href="{{ route('listhand.index') }}" class="btn btn-secondary">Xóa bộ lọc</a>
-                        </div>
-                    </div>
-                </form>
+                    </form>
                     <table id="datatable-buttons" class="table table-striped dt-responsive nowrap w-100 mb-0 dataTable dtr-inline" aria-describedby="datatable-buttons_info" style="width: 100%;">
                         <colgroup>
                             <col data-dt-column="0" style="min-width: 100px;">
@@ -106,25 +123,25 @@
                         </thead>
                         <tbody>
                             @foreach ($handresults as $handresult)
-                                <tr>
-                                    <td class="sorting_1 dtr-control" tabindex="0">{{ $handresult->device->serial ?? 'N/A' }}</td>
-                                    <td class="dt-type-date">{{ $handresult->created_at ? $handresult->created_at->format('Y/m/d H:i') : 'N/A' }}</td>
-                                    <td class="dt-type-numeric">{{ $handresult->chi_wins ?? 0 }}</td>
-                                    <td class="dt-type-numeric">{{ $handresult->chi_losses ?? 0 }}</td>
-                                    <td class="dt-type-numeric">{{ number_format($handresult->money ?? 0, 2) }}</td>
-                                    <td>{{ $handresult->hand_type ?? 'N/A' }}</td>
-                                    <td class="dt-type-numeric">{{ $handresult->first_chi_rank ?? 'N/A' }}</td>
-                                    <td class="dt-type-numeric">{{ $handresult->middle_chi_rank ?? 'N/A' }}</td>
-                                    <td class="dt-type-numeric">{{ $handresult->last_chi_rank ?? 'N/A' }}</td>
-                                    <td>
-                                        <a href="{{ route('hand-results.edit', $handresult->id) }}" class="btn btn-sm btn-primary">Sửa</a>
-                                        <form action="{{ route('hand-results.destroy', $handresult->id) }}" method="POST" style="display:inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa bản ghi này?')">Xóa</button>
-                                        </form>
-                                    </td>
-                                </tr>
+                            <tr>
+                                <td class="sorting_1 dtr-control" tabindex="0">{{ $handresult->device->serial ?? 'N/A' }}</td>
+                                <td class="dt-type-date">{{ $handresult->created_at ? $handresult->created_at->format('Y/m/d H:i') : 'N/A' }}</td>
+                                <td class="dt-type-numeric">{{ $handresult->chi_wins ?? 0 }}</td>
+                                <td class="dt-type-numeric">{{ $handresult->chi_losses ?? 0 }}</td>
+                                <td class="dt-type-numeric">{{ number_format($handresult->money ?? 0, 2) }}</td>
+                                <td>{{ $handresult->hand_type ?? 'N/A' }}</td>
+                                <td class="dt-type-numeric">{{ $handresult->first_chi_rank ?? 'N/A' }}</td>
+                                <td class="dt-type-numeric">{{ $handresult->middle_chi_rank ?? 'N/A' }}</td>
+                                <td class="dt-type-numeric">{{ $handresult->last_chi_rank ?? 'N/A' }}</td>
+                                <td>
+                                    <a href="{{ route('hand-results.edit', $handresult->id) }}" class="btn btn-sm btn-primary">Sửa</a>
+                                    <form action="{{ route('hand-results.destroy', $handresult->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa bản ghi này?')">Xóa</button>
+                                    </form>
+                                </td>
+                            </tr>
                             @endforeach
                         </tbody>
                         <tfoot></tfoot>
@@ -143,15 +160,29 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         $('#datatable-buttons').DataTable({
             dom: 'Bfrtip',
-            buttons: [
-                { extend: 'copy', text: 'Sao chép' },
-                { extend: 'csv', text: 'CSV' },
-                { extend: 'excel', text: 'Excel' },
-                { extend: 'print', text: 'In' },
-                { extend: 'pdf', text: 'PDF' }
+            buttons: [{
+                    extend: 'copy',
+                    text: 'Sao chép'
+                },
+                {
+                    extend: 'csv',
+                    text: 'CSV'
+                },
+                {
+                    extend: 'excel',
+                    text: 'Excel'
+                },
+                {
+                    extend: 'print',
+                    text: 'In'
+                },
+                {
+                    extend: 'pdf',
+                    text: 'PDF'
+                }
             ],
             responsive: true,
             pageLength: 10,

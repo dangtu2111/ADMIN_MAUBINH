@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\HandResult;
+use App\Models\Device;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Routing\Controller; // Thêm dòng này
@@ -38,12 +39,17 @@ class HandResultController extends Controller
         if ($request->has('chi_losses') && is_numeric($request->chi_losses)) {
             $query->where('chi_losses', '>=', $request->chi_losses);
         }
-
+        // Lọc theo danh sách device_serial nếu có
+        if ($request->has('device_serial') && is_array($request->device_serial)) {
+            $query->whereHas('device', function ($q) use ($request) {
+                $q->whereIn('serial', $request->device_serial);
+            });
+        }
         // Áp dụng phân trang
         $handresults = $query->orderBy('created_at', 'desc')->paginate($perPage);
-
+        $devices=Device::all();
         // Trả về view với dữ liệu phân trang
-        return view('listhand.index', compact('handresults'));
+        return view('listhand.index', compact('handresults','devices'));
     }
 
     public function destroy(Request $request, $id)
