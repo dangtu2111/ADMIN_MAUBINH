@@ -29,12 +29,23 @@ class HandResultController extends Controller
             });
         }
 
+        // Lọc chi_wins nếu có tham số
+        if ($request->has('chi_wins') && is_numeric($request->chi_wins)) {
+            $query->where('chi_wins', '>=', $request->chi_wins);
+        }
+
+        // Lọc chi_losses nếu có tham số
+        if ($request->has('chi_losses') && is_numeric($request->chi_losses)) {
+            $query->where('chi_losses', '>=', $request->chi_losses);
+        }
+
         // Áp dụng phân trang
         $handresults = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
         // Trả về view với dữ liệu phân trang
         return view('listhand.index', compact('handresults'));
     }
+
     public function destroy(Request $request, $id)
     {
         // Tìm bản ghi HandResult
