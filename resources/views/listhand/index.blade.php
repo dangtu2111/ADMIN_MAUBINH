@@ -79,7 +79,7 @@
                                 <tr>
                                     <td class="sorting_1 dtr-control" tabindex="0">{{ $handresult->device->serial }}</td>
                                   
-                                    <td class="dt-type-date">{{ $handresult->created_at ? $handresult->created_at->format('Y/m/d') : 'N/A' }}</td>
+                                    <td class="dt-type-date">{{ $handresult->created_at ? $handresult->created_at->format('Y/m/d H:i') : 'N/A' }}</td>
                                     <td class="dt-type-numeric">{{ $handresult->chi_wins ?? 0 }}</td>
                                     <td class="dt-type-numeric">{{ $handresult->chi_losses ?? 0 }}</td>
                                     <td class="dt-type-numeric">{{ number_format($handresult->money ?? 0, 2) }}</td>
