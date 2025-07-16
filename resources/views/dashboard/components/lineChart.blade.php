@@ -33,7 +33,7 @@
             </div>
         </div>
     </div>
-    <div class="card-body pt-0">
+    <!-- <div class="card-body pt-0">
         <div class="dash-item-overlay d-none d-md-block" dir="ltr">
             <h5>Today's Earning: $2,562.30</h5>
             <p class="text-muted font-13 mb-3 mt-2">
@@ -46,5 +46,5 @@
         <div dir="ltr">
             <div id="revenue-chart" class="apex-charts mt-3" data-colors="#727cf5,#0acf97"></div>
         </div>
-    </div>
+    </div> -->
 </div>
