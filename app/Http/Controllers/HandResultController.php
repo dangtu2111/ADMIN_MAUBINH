@@ -49,7 +49,11 @@ class HandResultController extends Controller
         $handresults = $query->orderBy('created_at', 'desc')->paginate($perPage);
         $devices=Device::all();
         // Trả về view với dữ liệu phân trang
-        return view('listhand.index', compact('handresults','devices'));
+        return view('listhand.index', [
+            'handresults' => $query->paginate(10)->appends($request->query()),
+            'devices' => Device::all()
+        ]);
+
     }
 
     public function destroy(Request $request, $id)
