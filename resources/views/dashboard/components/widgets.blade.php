@@ -9,7 +9,7 @@
                 <h3 class="mt-3 mb-3">+ 352 Chi</h3>
                 <p class="mb-0 text-muted">
                     <span class="text-success me-2"><i class="mdi mdi-arrow-up-bold"></i> 5.27%</span>
-                    <span class="text-nowrap">Since last month</span>
+                    <span class="text-nowrap">Since last week</span>
                 </p>
             </div> <!-- end card-body-->
         </div> <!-- end card-->
@@ -59,7 +59,7 @@
                 <h3 class="mt-3 mb-3">+ 3.000K</h3>
                 <p class="mb-0 text-muted">
                     <span class="text-success me-2"><i class="mdi mdi-arrow-up-bold"></i> 4.87%</span>
-                    <span class="text-nowrap">Since last month</span>
+                    <span class="text-nowrap">Since last week</span>
                 </p>
             </div> <!-- end card-body-->
         </div> <!-- end card-->
