@@ -95,12 +95,18 @@
                 var barColors = ["#727cf5"];
 
                 const allData = data.series.flatMap(serie => serie.data);
-                const maxY = Math.max(...allData);
-                const minY = Math.min(...allData);
+                const rawMaxY = Math.max(...allData);
+                const rawMinY = Math.min(...allData);
 
-                const rangeY = maxY - minY;
+                // ✅ Làm tròn về mốc gần nhất (bội của 10 hoặc 50 hoặc 100 tùy vào giá trị lớn nhất)
+                const roundTo = rawMaxY > 1000 ? 100 : rawMaxY > 200 ? 50 : 10;
+
+                const maxY = Math.ceil(rawMaxY / roundTo) * roundTo;
+                const minY = Math.floor(rawMinY / roundTo) * roundTo;
+
                 const tickCount = 5;
-                const stepSize = Math.ceil(rangeY / tickCount) || 1; // tránh chia 0
+                const rangeY = maxY - minY;
+                const stepSize = Math.ceil(rangeY / tickCount);
 
                 var barOptions = {
                     chart: {
@@ -154,6 +160,7 @@
             .catch(error => {
                 console.error('Error fetching chart data:', error);
             });
+
 
         fetch('/device-chi-win-rate', {
             method: 'GET',
