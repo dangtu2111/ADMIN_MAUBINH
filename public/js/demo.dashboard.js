@@ -94,12 +94,13 @@
             .then(data => {
                 var barColors = ["#727cf5"];
 
-                // ✅ Tìm giá trị lớn nhất trong mảng dữ liệu
                 const allData = data.series.flatMap(serie => serie.data);
                 const maxY = Math.max(...allData);
+                const minY = Math.min(...allData);
 
-                // ✅ Tính toán stepSize (ví dụ: chia làm 5 bước)
-                const stepSize = Math.ceil(maxY / 5);
+                const rangeY = maxY - minY;
+                const tickCount = 5;
+                const stepSize = Math.ceil(rangeY / tickCount) || 1; // tránh chia 0
 
                 var barOptions = {
                     chart: {
@@ -128,7 +129,9 @@
                         axisBorder: { show: false }
                     },
                     yaxis: {
-                        tickAmount: 5,
+                        min: minY,
+                        max: maxY,
+                        tickAmount: tickCount,
                         labels: {
                             formatter: function (value) {
                                 return value + "k";
