@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Device;
 
 
 
@@ -95,7 +96,39 @@ class DashboardStatsController extends Controller
             'weeklyProfitChange'   => round($weeklyProfitChange, 2),
         ]);
     }
+    public function deviceResult()
+    {
+        // Truy vấn danh sách thiết bị với tổng tiền, số lượng HandResult và doanh thu ngày gần nhất
+        $devices = Device::withCount('handResults')
+            ->with(['handResults' => function ($query) {
+                $query->selectRaw('id_device, SUM(money) as total_money, MAX(created_at) as latest_created_at')
+                      ->groupBy('id_device');
+            }])
+            ->get()
+            ->map(function ($device) {
+                // Tính doanh thu ngày gần nhất
+                $latestDate = $device->handResults->isEmpty() ? null : Carbon::parse($device->handResults[0]->latest_created_at)->startOfDay();
+                $latestDateRevenue = 0;
+                if ($latestDate) {
+                    $latestDateRevenue = \App\Models\HandResult::where('id_device', $device->id)
+                        ->whereDate('created_at', $latestDate)
+                        ->sum('money');
+                }
 
+                return [
+                    'serial' => $device->serial,
+                    'total_money' => $device->handResults->isEmpty() ? 0 : (float) $device->handResults[0]->total_money * 1000, // Nhân với 1000 như yêu cầu trước
+                    'hand_results_count' => $device->hand_results_count,
+                    'latest_created_at' => $device->handResults->isEmpty() ? null : Carbon::parse($device->handResults[0]->latest_created_at)->format('d M Y'),
+                    'latest_date_revenue' => $latestDateRevenue * 1000, // Doanh thu ngày gần nhất, nhân với 1000
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $devices
+        ], 200);
+    }
     public function getChartData(): JsonResponse
     {
         // Xác định tuần hiện tại (từ thứ Hai đến Chủ Nhật)

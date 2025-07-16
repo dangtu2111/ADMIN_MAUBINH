@@ -66,6 +66,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/devices', [DeviceController::class, 'index'])->name('devices.index');
     Route::get('/line-chart-data', [DashboardStatsController::class, 'lineChartData'])->name('lineChartData');
     Route::get('/device-chi-win-rate', [DashboardStatsController::class, 'getDeviceChiWinRate']);
-
+    Route::get('/devices/revenue', [DashboardStatsController::class, 'deviceResult'])->name('devicesRevenue');
 });
 ?>

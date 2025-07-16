@@ -52,14 +52,15 @@
              </div>
              <!-- end row -->
 
-             <!-- <div class="row">
+             <div class="row">
                 
                      
+                     @include('dashboard.components.deviceResult')
                  
 
                  
 
-             </div> -->
+             </div>
              <!-- end row -->
 
          
