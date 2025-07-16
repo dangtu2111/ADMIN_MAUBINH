@@ -90,77 +90,82 @@
             });
 
         fetch('/api/chart-data')
-            .then(response => response.json())
-            .then(data => {
-                var barColors = ["#727cf5"];
+    .then(response => response.json())
+    .then(data => {
+        const barColors = ["#727cf5"];
 
-                const allData = data.series.flatMap(serie => serie.data);
-                const rawMaxY = Math.max(...allData);
-                const rawMinY = Math.min(...allData);
+        const allData = data.series.flatMap(serie => serie.data);
+        const rawMaxY = Math.max(...allData);
+        const rawMinY = Math.min(...allData);
 
-                // ✅ Làm tròn về mốc gần nhất (bội của 10 hoặc 50 hoặc 100 tùy vào giá trị lớn nhất)
-                const roundTo = rawMaxY > 1000 ? 100 : rawMaxY > 200 ? 50 : 10;
+        // Xác định mức làm tròn (10 hoặc 100)
+        function getRoundBase(maxVal) {
+            return maxVal > 1000 ? 100 : 10;
+        }
 
-                const maxY = Math.ceil(rawMaxY / roundTo) * roundTo;
-                const minY = Math.floor(rawMinY / roundTo) * roundTo;
+        const roundTo = getRoundBase(rawMaxY);
+        const maxY = Math.ceil(rawMaxY / roundTo) * roundTo;
+        const minY = Math.floor(rawMinY / roundTo) * roundTo;
 
-                const tickCount = 5;
-                const rangeY = maxY - minY;
-                const stepSize = Math.ceil(rangeY / tickCount);
+        const tickCount = 5;
+        // Đảm bảo stepSize là bội số của roundTo
+        const stepSize = Math.ceil((maxY - minY) / tickCount / roundTo) * roundTo;
 
-                var barOptions = {
-                    chart: {
-                        height: 256,
-                        type: "bar",
-                        stacked: false
+        const barOptions = {
+            chart: {
+                height: 256,
+                type: "bar",
+                stacked: false
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: "20%"
+                }
+            },
+            dataLabels: { enabled: false },
+            stroke: {
+                show: true,
+                width: 0,
+                colors: ["transparent"]
+            },
+            series: data.series,
+            zoom: { enabled: false },
+            legend: { show: false },
+            colors: $("#high-performing-product").data("colors")
+                ? $("#high-performing-product").data("colors").split(",")
+                : barColors,
+            xaxis: {
+                categories: data.categories,
+                axisBorder: { show: false }
+            },
+            yaxis: {
+                min: minY,
+                max: maxY,
+                tickAmount: tickCount,
+                tickSize: stepSize, // Đảm bảo các bước là bội số của 10 hoặc 100
+                labels: {
+                    formatter: function (value) {
+                        return value + "k";
                     },
-                    plotOptions: {
-                        bar: {
-                            horizontal: false,
-                            columnWidth: "20%"
-                        }
-                    },
-                    dataLabels: { enabled: false },
-                    stroke: {
-                        show: true,
-                        width: 0,
-                        colors: ["transparent"]
-                    },
-                    series: data.series,
-                    zoom: { enabled: false },
-                    legend: { show: false },
-                    colors: $("#high-performing-product").data("colors") ? $("#high-performing-product").data("colors").split(",") : barColors,
-                    xaxis: {
-                        categories: data.categories,
-                        axisBorder: { show: false }
-                    },
-                    yaxis: {
-                        min: minY,
-                        max: maxY,
-                        tickAmount: tickCount,
-                        labels: {
-                            formatter: function (value) {
-                                return value + "k";
-                            },
-                            offsetX: -15
-                        }
-                    },
-                    fill: { opacity: 1 },
-                    tooltip: {
-                        y: {
-                            formatter: function (value) {
-                                return "$" + value + "k";
-                            }
-                        }
+                    offsetX: -15
+                }
+            },
+            fill: { opacity: 1 },
+            tooltip: {
+                y: {
+                    formatter: function (value) {
+                        return "$" + value + "k";
                     }
-                };
+                }
+            }
+        };
 
-                new ApexCharts(document.querySelector("#high-performing-product"), barOptions).render();
-            })
-            .catch(error => {
-                console.error('Error fetching chart data:', error);
-            });
-
+        new ApexCharts(document.querySelector("#high-performing-product"), barOptions).render();
+    })
+    .catch(error => {
+        console.error('Error fetching chart data:', error);
+    });
 
         fetch('/device-chi-win-rate', {
             method: 'GET',
