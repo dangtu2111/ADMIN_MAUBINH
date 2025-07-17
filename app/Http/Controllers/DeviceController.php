@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Device;
+use App\Models\DeviceHourlyRevenue;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Routing\Controller; // Thêm dòng này
+use Illuminate\Support\Facades\DB;
 
 class DeviceController extends Controller
 {
@@ -14,15 +16,38 @@ class DeviceController extends Controller
         $this->middleware('auth');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        if (Auth::user()->role === 'admin') {
-            $devices = Device::with('deviceStats', 'user')->get();
-        } else {
-            $devices = Device::with('deviceStats', 'user')->where('id_user', Auth::id())->get();
+        // Lấy bản ghi mới nhất cho mỗi thiết bị từ DeviceHourlyRevenue
+        $latestRevenues = DeviceHourlyRevenue::select('device_hourly_revenue.*')
+            ->join(DB::raw('(SELECT id_device, MAX(created_at) as max_created_at FROM device_hourly_revenue GROUP BY id_device) as latest'),
+                function ($join) {
+                    $join->on('device_hourly_revenue.id_device', '=', 'latest.id_device')
+                         ->on('device_hourly_revenue.created_at', '=', 'latest.max_created_at');
+                })
+            ->with(['device', 'device.user']) // Load quan hệ device và user
+            ->get()
+            ->map(function ($revenue) {
+                return (object) [
+                    'serial' => $revenue->device->serial ?? 'N/A',
+                    'owner' => $revenue->device->user->username ?? 'N/A',
+                    'date' => $revenue->date,
+                    'hour' => $revenue->hour,
+                    'total_money' => (float) $revenue->total_money, // Nhân với 1000
+                    'id_hand_result' => $revenue->id_hand_result ?? 'N/A',
+                ];
+            })->sortBy('serial')->values();
+
+        // Nếu là request API, trả về JSON
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $latestRevenues
+            ], 200);
         }
 
-        return view('devices.index', compact('devices'));
+        // Nếu là request Blade, trả về view
+        return view('devices.index', compact('latestRevenues'));
     }
 }
 ?>

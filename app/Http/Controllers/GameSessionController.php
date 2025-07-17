@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\GameSession;
 use App\Models\HandResult;
+use App\Models\DeviceHourlyRevenue;
 use App\Models\Device;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,6 +40,7 @@ class GameSessionController extends Controller
             'chi_wins' => ['required', 'integer', 'min:0'],
             'chi_losses' => ['required', 'integer', 'min:0'],
             'money' => ['required', 'numeric'],
+            'device_money' => ['nullable', 'numeric'],
             'hand_type' => ['required','string', 'max:30'],
             'first_chi_rank' =>['required', 'numeric', 'min:0'],
             'middle_chi_rank' => ['required', 'numeric', 'min:0'],
@@ -86,7 +88,7 @@ class GameSessionController extends Controller
                 return response()->json(['message' => 'Unauthorized'], 403);
             }
             // Transaction tối ưu với batch insert
-            $response = DB::transaction(function () use ($validated, $device, $cacheKey) {
+            $response = DB::transaction(function () use ($validated, $device, $cacheKey,$request) {
                
                 $session = GameSession::create([
                     'id_device' => $device->id,
@@ -95,7 +97,8 @@ class GameSessionController extends Controller
                     'last_hand' => $validated['last_hand'],
                     'created_at' => now(),
                 ]);
-                HandResult::create([
+                
+                $handResult = HandResult::create([
                     'id_device' => $device->id,
                     'id_session' => $session->id,
                     'hand_type' => $validated['hand_type'],
@@ -107,6 +110,23 @@ class GameSessionController extends Controller
                     'last_chi_rank' => $validated['last_chi_rank'],
                     'created_at' => now(),
                 ]);
+                // dd($handResult->id);
+                if ($request->has('device_money')) {
+
+                    DeviceHourlyRevenue::updateOrInsert(
+                        [
+                            'id_device' => $device->id,
+                            'date' => $handResult->created_at->toDateString(),
+                            'hour' => $handResult->created_at->hour,
+                        ],
+                        [
+                            'total_money' => $validated['device_money'],
+                            'id_hand_result' => $handResult->id,
+                            'created_at' => now(), // chỉ cần nếu bạn muốn ghi đè created_at
+                        ]
+                    );
+
+                }
                 
                 Cache::forget($cacheKey); // Xóa cache ngay sau khi tạo
 
@@ -118,6 +138,7 @@ class GameSessionController extends Controller
 
             return $response;
         } catch (\Exception $e) {
+            dd($e->getMessage());
             // Logging tối giản để giảm I/O
             \Log::error('Game session creation failed', [
                 'user_id' => Auth::id(),

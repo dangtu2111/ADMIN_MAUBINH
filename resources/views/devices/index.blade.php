@@ -6,9 +6,9 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <h4 class="header-title">Device List</h4>
+                <h4 class="header-title">Danh sách doanh thu mới nhất của thiết bị</h4>
                 <p class="text-muted font-14 mb-4">
-                    List of devices and their statistics, including serial, owner, creation date, chi wins, chi losses, and total money.
+                    Danh sách các thiết bị với bản ghi doanh thu mới nhất, bao gồm serial, chủ sở hữu, ngày, giờ, tổng tiền và ID HandResult.
                 </p>
 
                 <div id="datatable-buttons_wrapper" class="dt-container dt-bootstrap5 dt-empty-footer">
@@ -29,10 +29,11 @@
                         <colgroup>
                             <col data-dt-column="0" style="width: 150px;">
                             <col data-dt-column="1" style="width: 150px;">
-                            <col data-dt-column="2" style="width: 150px;">
-                            <col data-dt-column="3" style="width: 100px;">
-                            <col data-dt-column="4" style="width: 100px;">
-                            <col data-dt-column="5" style="width: 150px;">
+                            <col data-dt-column="2" style="width: 120px;">
+                            <col data-dt-column="3" style="width: 80px;">
+                            <col data-dt-column="4" style="width: 150px;">
+                            <col data-dt-column="5" style="width: 120px;">
+                            <col data-dt-column="6" style="width: 120px;">
                         </colgroup>
                         <thead>
                             <tr>
@@ -40,38 +41,53 @@
                                     <div class="dt-column-header"><span class="dt-column-title">Serial</span><span class="dt-column-order" role="button" aria-label="Serial: Activate to sort" tabindex="0"></span></div>
                                 </th>
                                 <th data-dt-column="1" class="dt-orderable-asc dt-orderable-desc">
-                                    <div class="dt-column-header"><span class="dt-column-title">Owner</span><span class="dt-column-order" role="button" aria-label="Owner: Activate to sort" tabindex="0"></span></div>
+                                    <div class="dt-column-header"><span class="dt-column-title">Chủ sở hữu</span><span class="dt-column-order" role="button" aria-label="Owner: Activate to sort" tabindex="0"></span></div>
                                 </th>
                                 <th data-dt-column="2" class="dt-type-date dt-orderable-asc dt-orderable-desc">
-                                    <div class="dt-column-header"><span class="dt-column-title">Created At</span><span class="dt-column-order" role="button" aria-label="Created At: Activate to sort" tabindex="0"></span></div>
+                                    <div class="dt-column-header"><span class="dt-column-title">Ngày</span><span class="dt-column-order" role="button" aria-label="Date: Activate to sort" tabindex="0"></span></div>
                                 </th>
                                 <th data-dt-column="3" class="dt-type-numeric dt-orderable-asc dt-orderable-desc">
-                                    <div class="dt-column-header"><span class="dt-column-title">Chi Wins</span><span class="dt-column-order" role="button" aria-label="Chi Wins: Activate to sort" tabindex="0"></span></div>
+                                    <div class="dt-column-header"><span class="dt-column-title">Giờ</span><span class="dt-column-order" role="button" aria-label="Hour: Activate to sort" tabindex="0"></span></div>
                                 </th>
                                 <th data-dt-column="4" class="dt-type-numeric dt-orderable-asc dt-orderable-desc">
-                                    <div class="dt-column-header"><span class="dt-column-title">Chi Losses</span><span class="dt-column-order" role="button" aria-label="Chi Losses: Activate to sort" tabindex="0"></span></div>
+                                    <div class="dt-column-header"><span class="dt-column-title">Tổng tiền (VNĐ)</span><span class="dt-column-order" role="button" aria-label="Total Money: Activate to sort" tabindex="0"></span></div>
                                 </th>
-                                <th data-dt-column="5" class="dt-type-numeric dt-orderable-asc dt-orderable-desc">
-                                    <div class="dt-column-header"><span class="dt-column-title">Total Money</span><span class="dt-column-order" role="button" aria-label="Total Money: Activate to sort" tabindex="0"></span></div>
+                                <th data-dt-column="5" class="dt-orderable-asc dt-orderable-desc">
+                                    <div class="dt-column-header"><span class="dt-column-title">ID HandResult</span><span class="dt-column-order" role="button" aria-label="ID HandResult: Activate to sort" tabindex="0"></span></div>
+                                </th>
+                                <th data-dt-column="6" class="dt-orderable-none">
+                                    <div class="dt-column-header"><span class="dt-column-title">Hành động</span></div>
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($devices as $device)
-                                <tr>
-                                    <td class="sorting_1 dtr-control" tabindex="0">{{ $device->serial }}</td>
-                                    <td>{{ $device->user->username ?? 'N/A' }}</td>
-                                    <td class="dt-type-date">{{ $device->created_at ? $device->created_at->format('Y/m/d') : 'N/A' }}</td>
-                                    <td class="dt-type-numeric">{{ $device->deviceStats->total_chi_wins ?? 0 }}</td>
-                                    <td class="dt-type-numeric">{{ $device->deviceStats->total_chi_losses ?? 0 }}</td>
-                                    <td class="dt-type-numeric">{{ number_format($device->deviceStats->total_money ?? 0, 2) }}</td>
-                                </tr>
-                            @endforeach
+                            @forelse ($latestRevenues as $revenue)
+                            <tr>
+                                <td class="sorting_1 dtr-control" tabindex="0">{{ $revenue->serial }}</td>
+                                <td>{{ $revenue->owner }}</td>
+                                <td>{{ $revenue->date }}</td>
+                                <td>{{ $revenue->hour }}h</td>
+                                <td>{{ number_format($revenue->total_money, 2) }}</td>
+                                <td>{{ $revenue->id_hand_result }}</td>
+                                <td>
+                                    <a href="#" class="btn btn-sm btn-primary">Sửa</a>
+                                    <form action="#" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa bản ghi này?')">Xóa</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="6">Không có dữ liệu</td>
+                            </tr>
+                            @endforelse
                         </tbody>
                         <tfoot></tfoot>
                     </table>
                     <div class="d-md-flex justify-content-between align-items-center mt-2">
-                        <div class="dt-info" aria-live="polite" id="datatable-buttons_info" role="status">Showing {{ $devices->count() > 0 ? 1 : 0 }} to {{ $devices->count() }} of {{ $devices->count() }} entries</div>
+                        <div class="dt-info" aria-live="polite" id="datatable-buttons_info" role="status">Hiển thị {{ $latestRevenues->count() > 0 ? 1 : 0 }} đến {{ $latestRevenues->count() }} của {{ $latestRevenues->count() }} bản ghi</div>
                         <div class="dt-paging">
                             <nav aria-label="pagination">
                                 <ul class="pagination">
@@ -92,7 +108,7 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         $('#datatable-buttons').DataTable({
             dom: 'Bfrtip',
             buttons: ['copy', 'csv', 'excel', 'print', 'pdf'],
