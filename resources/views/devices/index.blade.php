@@ -25,6 +25,33 @@
                             <input type="search" class="form-control form-control-sm" id="dt-search-2" placeholder="" aria-controls="datatable-buttons">
                         </div>
                     </div>
+                    <!-- Form lọc -->
+                    <form method="GET" action="{{ route('devices.index') }}" class="mb-3">
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <label for="device_serial" class="form-label">Device serial</label>
+                                <select class="select2 form-control select2-multiple"
+                                    id="device_serial"
+                                    name="device_serial[]"
+                                    data-toggle="select2"
+                                    multiple="multiple"
+                                    data-placeholder="Choose ...">
+                                    @foreach ($devices as $device)
+                                    <option value="{{ $device->serial }}"
+                                        @if (is_array(request()->device_serial) && in_array($device->serial, request()->device_serial))
+                                        selected
+                                        @endif>
+                                        {{ $device->serial }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3 align-self-end">
+                                <button type="submit" class="btn btn-primary">Lọc</button>
+                                <a href="{{ route('devices.index') }}" class="btn btn-secondary">Xóa bộ lọc</a>
+                            </div>
+                        </div>
+                    </form>
                     <table id="datatable-buttons" class="table table-striped dt-responsive nowrap w-100 mb-0 dataTable dtr-inline" aria-describedby="datatable-buttons_info" style="width: 100%;">
                         <colgroup>
                             <col data-dt-column="0" style="width: 150px;">
