@@ -11,7 +11,7 @@
                     Danh sách các thiết bị với bản ghi doanh thu mới nhất, bao gồm serial, chủ sở hữu, ngày, giờ, tổng tiền và ID HandResult.
                 </p>
 
-                <!-- Form lọc theo device_serial -->
+                <!-- Form lọc theo device_serial
                 <form method="GET" action="{{ route('devices.index') }}" class="mb-3">
                     <div class="row g-2">
                         <div class="col-md-3">
@@ -37,7 +37,7 @@
                             <a href="{{ route('devices.index') }}" class="btn btn-secondary">Xóa bộ lọc</a>
                         </div>
                     </div>
-                </form>
+                </form> -->
 
                 <!-- Form tính toán đối chiếu doanh thu -->
                 <h5 class="mt-4">Tính toán và đối chiếu doanh thu</h5>
