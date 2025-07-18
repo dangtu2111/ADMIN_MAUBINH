@@ -106,7 +106,7 @@
                             </table>
                             <div id="handresults-pagination" class="d-md-flex justify-content-between align-items-center mt-2">
                                 <div class="dt-info" id="pagination-info">
-                                    <!-- Thông tin phân trang sẽ được render bởi JS -->
+
                                 </div>
                                 <div class="dt-paging">
                                     <nav aria-label="pagination">
@@ -139,6 +139,7 @@
                                 </div>
 
                             </div>
+                            <br>
                         </div>
                     </div>
                 </div>
@@ -300,7 +301,39 @@
                 }
             });
         });
-        $('#show-handresults').on('click', function() {
+
+        function renderPagination(pagination) {
+            const {
+                current_page,
+                last_page
+            } = pagination;
+            const paginationLinks = $('#pagination-links');
+
+            // Gỡ các nút trang hiện tại (trừ các nút đặc biệt)
+            paginationLinks.find('.page-number').remove();
+            console.log(last_page);
+            // Thêm các nút số trang
+            for (let i = 1; i <= last_page; i++) {
+                
+        let active = i === current_page ? 'active' : '';
+        $(`<li class="page-item page-number ${active}">
+            <a class="page-link" href="#" onclick="fetchHandResults(${i})">${i}</a>
+        </li>`).insertBefore('#next-page');
+    }
+
+            // Cập nhật trạng thái nút điều hướng
+            $('#first-page').toggleClass('disabled', current_page === 1)
+                .find('a').attr('onclick', current_page > 1 ? `fetchHandResults(1)` : null);
+            $('#prev-page').toggleClass('disabled', current_page === 1)
+                .find('a').attr('onclick', current_page > 1 ? `fetchHandResults(${current_page - 1})` : null);
+            $('#next-page').toggleClass('disabled', current_page === last_page)
+                .find('a').attr('onclick', current_page < last_page ? `fetchHandResults(${current_page + 1})` : null);
+            $('#last-page').toggleClass('disabled', current_page === last_page)
+                .find('a').attr('onclick', current_page < last_page ? `fetchHandResults(${last_page})` : null);
+        }
+
+
+        function fetchHandResults(page = 1) {
             let serial = $('#serial').val();
             let startId = $('#start_hand_result_id').val();
             let endId = $('#end_hand_result_id').val();
@@ -309,41 +342,12 @@
                 alert("Vui lòng chọn đầy đủ thông tin!");
                 return;
             }
+
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
-
-            function renderPagination(pagination) {
-                const {
-                    current_page,
-                    last_page
-                } = pagination;
-                const paginationLinks = $('#pagination-links');
-
-                // Gỡ các nút trang hiện tại (trừ các nút đặc biệt)
-                paginationLinks.find('.page-number').remove();
-
-                // Thêm các nút số trang
-                for (let i = 1; i <= last_page; i++) {
-                    let active = i === current_page ? 'active' : '';
-                    $(`<li class="page-item page-number ${active}">
-            <a class="page-link" href="#" onclick="fetchHandResults(${i})">${i}</a>
-        </li>`).insertBefore('#next-page');
-                }
-
-                // Cập nhật trạng thái nút điều hướng
-                $('#first-page').toggleClass('disabled', current_page === 1)
-                    .find('a').attr('onclick', current_page > 1 ? `fetchHandResults(1)` : null);
-                $('#prev-page').toggleClass('disabled', current_page === 1)
-                    .find('a').attr('onclick', current_page > 1 ? `fetchHandResults(${current_page - 1})` : null);
-                $('#next-page').toggleClass('disabled', current_page === last_page)
-                    .find('a').attr('onclick', current_page < last_page ? `fetchHandResults(${current_page + 1})` : null);
-                $('#last-page').toggleClass('disabled', current_page === last_page)
-                    .find('a').attr('onclick', current_page < last_page ? `fetchHandResults(${last_page})` : null);
-            }
-
 
             $.ajax({
                 url: '{{ route("hand-results.range") }}',
@@ -351,12 +355,14 @@
                 data: {
                     serial: serial,
                     start_hand_result_id: startId,
-                    end_hand_result_id: endId
+                    end_hand_result_id: endId,
+                    page: page
                 },
                 success: function(response) {
                     if (response.success) {
                         let body = $('#handresults-body');
                         body.empty();
+
                         response.data.forEach(hr => {
                             body.append(`
                         <tr>
@@ -369,9 +375,9 @@
                         </tr>
                     `);
                         });
+
                         $('#handresults-list').show();
-                        renderPagination(response.pagination);
-                        currentPage = response.pagination.current_page;
+                        renderPagination(response.pagination); // 👈 truyền toàn bộ đối tượng phân trang
                     } else {
                         alert("Không có dữ liệu.");
                     }
@@ -380,6 +386,10 @@
                     alert("Lỗi khi gọi API.");
                 }
             });
+        }
+        $('#show-handresults').on('click', function() {
+            fetchHandResults(1);
+
         });
 
     });
