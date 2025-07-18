@@ -151,7 +151,17 @@ class DeviceController extends Controller
             ->with(['device', 'device.user'])
             ->get();
 
-        $totalMoney = $revenues->sum('total_money');
+        $totalMoney = 0;
+        if ($revenues->count() === 2) {
+            // Sắp xếp theo thời gian để đảm bảo đúng thứ tự start - end
+            $revenues = $revenues->sortBy(function ($rev) {
+                return $rev->date . ' ' . str_pad($rev->hour, 2, '0', STR_PAD_LEFT);
+            })->values();
+
+            $startMoney = $revenues[0]->total_money;
+            $endMoney = $revenues[1]->total_money;
+            $totalMoney = $endMoney - $startMoney;
+        }
 
         // ✅ Tổng tiền từ hand_results trong khoảng ID
         $handResults = HandResult::where('id_device', $device->id)
