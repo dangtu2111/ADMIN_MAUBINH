@@ -19,7 +19,6 @@ class DeviceController extends Controller
 
     public function index(Request $request)
     {
-        dd(now());
         if ($request->has('device_serial') && is_array($request->device_serial)) {
             // Lấy danh sách device_serial từ request
             $deviceSerials = $request->device_serial;
