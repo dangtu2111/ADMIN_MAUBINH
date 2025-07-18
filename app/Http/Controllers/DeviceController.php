@@ -259,15 +259,25 @@ class DeviceController extends Controller
             ], 404);
         }
 
-        // ✅ Lấy danh sách HandResult trong khoảng
+        // ✅ Lấy danh sách HandResult trong khoảng và phân trang
+        $perPage = 10;
         $handResults = HandResult::where('id_device', $device->id)
-            ->whereBetween('id', [$validated['start_hand_result_id'], $validated['end_hand_result_id']])
+            ->whereBetween('id', [
+                $validated['start_hand_result_id'],
+                $validated['end_hand_result_id']
+            ])
             ->orderBy('id')
-            ->get();
+            ->paginate($perPage);
 
         return response()->json([
             'success' => true,
-            'data' => $handResults,
+            'data' => $handResults->items(), // Dữ liệu trang hiện tại
+            'pagination' => [
+                'current_page' => $handResults->currentPage(),
+                'last_page' => $handResults->lastPage(),
+                'per_page' => $handResults->perPage(),
+                'total' => $handResults->total(),
+            ]
         ]);
     }
 }

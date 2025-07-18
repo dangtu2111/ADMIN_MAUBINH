@@ -16,65 +16,65 @@
                 <!-- Form tính toán đối chiếu doanh thu -->
                 <h5 class="mt-4">Tính toán và đối chiếu doanh thu</h5>
                 <form method="GET" action="{{ route('devices.compare-money') }}" class="mb-4">
-    <div class="row g-2">
-        <!-- Device Serial -->
-        <div class="col-md-3">
-            <label for="serial" class="form-label">Device Serial</label>
-            <select class="select2 form-control" id="serial" name="serial" required>
-                <option value="" disabled {{ request('serial') ? '' : 'selected' }}>Chọn thiết bị</option>
-                @foreach ($devices as $device)
-                    <option value="{{ $device->serial }}"
-                        @if (request('serial') == $device->serial)
-                            selected
-                        @endif>
-                        {{ $device->serial }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
+                    <div class="row g-2">
+                        <!-- Device Serial -->
+                        <div class="col-md-3">
+                            <label for="serial" class="form-label">Device Serial</label>
+                            <select class="select2 form-control" id="serial" name="serial" required>
+                                <option value="" disabled {{ request('serial') ? '' : 'selected' }}>Chọn thiết bị</option>
+                                @foreach ($devices as $device)
+                                <option value="{{ $device->serial }}"
+                                    @if (request('serial')==$device->serial)
+                                    selected
+                                    @endif>
+                                    {{ $device->serial }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
 
-        <!-- Start HandResult -->
-        <div class="col-md-3">
-            <label for="start_hand_result_id" class="form-label">ID HandResult bắt đầu</label>
-            <select class="select2 form-control" id="start_hand_result_id" name="start_hand_result_id" required>
-                <option value="" disabled {{ request('start_hand_result_id') ? '' : 'selected' }}>Chọn ID HandResult</option>
-                @foreach ($latestRevenues as $revenue)
-                    @if ($revenue->id_hand_result)
-                        <option value="{{ $revenue->id_hand_result }}"
-                            @if (request('start_hand_result_id') == $revenue->id_hand_result)
-                                selected
-                            @endif>
-                            {{ $revenue->id_hand_result }} ({{ $revenue->date }} {{ str_pad($revenue->hour, 2, '0', STR_PAD_LEFT) }}:00)
-                        </option>
-                    @endif
-                @endforeach
-            </select>
-        </div>
+                        <!-- Start HandResult -->
+                        <div class="col-md-3">
+                            <label for="start_hand_result_id" class="form-label">ID HandResult bắt đầu</label>
+                            <select class="select2 form-control" id="start_hand_result_id" name="start_hand_result_id" required>
+                                <option value="" disabled {{ request('start_hand_result_id') ? '' : 'selected' }}>Chọn ID HandResult</option>
+                                @foreach ($latestRevenues as $revenue)
+                                @if ($revenue->id_hand_result)
+                                <option value="{{ $revenue->id_hand_result }}"
+                                    @if (request('start_hand_result_id')==$revenue->id_hand_result)
+                                    selected
+                                    @endif>
+                                    {{ $revenue->id_hand_result }} ({{ $revenue->date }} {{ str_pad($revenue->hour, 2, '0', STR_PAD_LEFT) }}:00)
+                                </option>
+                                @endif
+                                @endforeach
+                            </select>
+                        </div>
 
-        <!-- End HandResult -->
-        <div class="col-md-3">
-            <label for="end_hand_result_id" class="form-label">ID HandResult kết thúc</label>
-            <select class="select2 form-control" id="end_hand_result_id" name="end_hand_result_id" required>
-                <option value="" disabled {{ request('end_hand_result_id') ? '' : 'selected' }}>Chọn ID HandResult</option>
-                @foreach ($latestRevenues as $revenue)
-                    @if ($revenue->id_hand_result)
-                        <option value="{{ $revenue->id_hand_result }}"
-                            @if (request("end_hand_result_id") == $revenue->id_hand_result)
-                                selected
-                            @endif>
-                            {{ $revenue->id_hand_result }} ({{ $revenue->date }} {{ str_pad($revenue->hour, 2, '0', STR_PAD_LEFT) }}:00)
-                        </option>
-                    @endif
-                @endforeach
-            </select>
-        </div>
+                        <!-- End HandResult -->
+                        <div class="col-md-3">
+                            <label for="end_hand_result_id" class="form-label">ID HandResult kết thúc</label>
+                            <select class="select2 form-control" id="end_hand_result_id" name="end_hand_result_id" required>
+                                <option value="" disabled {{ request('end_hand_result_id') ? '' : 'selected' }}>Chọn ID HandResult</option>
+                                @foreach ($latestRevenues as $revenue)
+                                @if ($revenue->id_hand_result)
+                                <option value="{{ $revenue->id_hand_result }}"
+                                    @if (request("end_hand_result_id")==$revenue->id_hand_result)
+                                    selected
+                                    @endif>
+                                    {{ $revenue->id_hand_result }} ({{ $revenue->date }} {{ str_pad($revenue->hour, 2, '0', STR_PAD_LEFT) }}:00)
+                                </option>
+                                @endif
+                                @endforeach
+                            </select>
+                        </div>
 
-        <!-- Submit -->
-        <div class="col-md-3 align-self-end">
-            <button type="submit" class="btn btn-primary">Tính toán</button>
-        </div>
-    </div>
-</form>
+                        <!-- Submit -->
+                        <div class="col-md-3 align-self-end">
+                            <button type="submit" class="btn btn-primary">Tính toán</button>
+                        </div>
+                    </div>
+                </form>
 
                 <!-- Hiển thị kết quả đối chiếu nếu có -->
                 @if (isset($data))
@@ -104,6 +104,41 @@
                                 </thead>
                                 <tbody id="handresults-body"></tbody>
                             </table>
+                            <div id="handresults-pagination" class="d-md-flex justify-content-between align-items-center mt-2">
+                                <div class="dt-info" id="pagination-info">
+                                    <!-- Thông tin phân trang sẽ được render bởi JS -->
+                                </div>
+                                <div class="dt-paging">
+                                    <nav aria-label="pagination">
+                                        <ul class="pagination" id="pagination-links">
+                                            <li class="page-item disabled" id="first-page">
+                                                <a class="page-link" href="#" aria-label="First">
+                                                    <i class="ri-arrow-left-double-line align-middle"></i>
+                                                </a>
+                                            </li>
+                                            <li class="page-item disabled" id="prev-page">
+                                                <a class="page-link" href="#" aria-label="Previous">
+                                                    <i class="ri-arrow-left-s-line align-middle"></i>
+                                                </a>
+                                            </li>
+
+                                            <!-- Nút số trang (JS sẽ chèn vào đây) -->
+
+                                            <li class="page-item" id="next-page">
+                                                <a class="page-link" href="#" aria-label="Next">
+                                                    <i class="ri-arrow-right-s-line align-middle"></i>
+                                                </a>
+                                            </li>
+                                            <li class="page-item" id="last-page">
+                                                <a class="page-link" href="#" aria-label="Last">
+                                                    <i class="ri-arrow-right-double-line align-middle"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -187,6 +222,7 @@
                         </tbody>
                         <tfoot></tfoot>
                     </table>
+
                     <div class="d-md-flex justify-content-between align-items-center mt-2">
                         <div class="dt-info" aria-live="polite" id="datatable-buttons_info" role="status">Hiển thị {{ $latestRevenues->count() > 0 ? 1 : 0 }} đến {{ $latestRevenues->count() }} của {{ $latestRevenues->count() }} bản ghi</div>
                         <div class="dt-paging">
@@ -278,6 +314,37 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
+
+            function renderPagination(pagination) {
+                const {
+                    current_page,
+                    last_page
+                } = pagination;
+                const paginationLinks = $('#pagination-links');
+
+                // Gỡ các nút trang hiện tại (trừ các nút đặc biệt)
+                paginationLinks.find('.page-number').remove();
+
+                // Thêm các nút số trang
+                for (let i = 1; i <= last_page; i++) {
+                    let active = i === current_page ? 'active' : '';
+                    $(`<li class="page-item page-number ${active}">
+            <a class="page-link" href="#" onclick="fetchHandResults(${i})">${i}</a>
+        </li>`).insertBefore('#next-page');
+                }
+
+                // Cập nhật trạng thái nút điều hướng
+                $('#first-page').toggleClass('disabled', current_page === 1)
+                    .find('a').attr('onclick', current_page > 1 ? `fetchHandResults(1)` : null);
+                $('#prev-page').toggleClass('disabled', current_page === 1)
+                    .find('a').attr('onclick', current_page > 1 ? `fetchHandResults(${current_page - 1})` : null);
+                $('#next-page').toggleClass('disabled', current_page === last_page)
+                    .find('a').attr('onclick', current_page < last_page ? `fetchHandResults(${current_page + 1})` : null);
+                $('#last-page').toggleClass('disabled', current_page === last_page)
+                    .find('a').attr('onclick', current_page < last_page ? `fetchHandResults(${last_page})` : null);
+            }
+
+
             $.ajax({
                 url: '{{ route("hand-results.range") }}',
                 method: 'GET',
@@ -303,6 +370,8 @@
                     `);
                         });
                         $('#handresults-list').show();
+                        renderPagination(response.pagination);
+                        currentPage = response.pagination.current_page;
                     } else {
                         alert("Không có dữ liệu.");
                     }
