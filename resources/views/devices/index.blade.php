@@ -11,6 +11,121 @@
                     Danh sách các thiết bị với bản ghi doanh thu mới nhất, bao gồm serial, chủ sở hữu, ngày, giờ, tổng tiền và ID HandResult.
                 </p>
 
+                <!-- Form lọc theo device_serial -->
+                <form method="GET" action="{{ route('devices.index') }}" class="mb-3">
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <label for="device_serial" class="form-label">Device serial</label>
+                            <select class="select2 form-control select2-multiple"
+                                id="device_serial"
+                                name="device_serial[]"
+                                data-toggle="select2"
+                                multiple="multiple"
+                                data-placeholder="Choose ...">
+                                @foreach ($devices as $device)
+                                <option value="{{ $device->serial }}"
+                                    @if (is_array(request()->device_serial) && in_array($device->serial, request()->device_serial))
+                                    selected
+                                    @endif>
+                                    {{ $device->serial }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3 align-self-end">
+                            <button type="submit" class="btn btn-primary">Lọc</button>
+                            <a href="{{ route('devices.index') }}" class="btn btn-secondary">Xóa bộ lọc</a>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Form tính toán đối chiếu doanh thu -->
+                <h5 class="mt-4">Tính toán và đối chiếu doanh thu</h5>
+                <form method="GET" action="{{ route('devices.compare-money') }}" class="mb-4">
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <label for="serial" class="form-label">Device Serial</label>
+                            <select class="select2 form-control" id="serial" name="serial" required>
+                                <option value="" disabled selected>Chọn thiết bị</option>
+                                @foreach ($devices as $device)
+                                    <option value="{{ $device->serial }}">{{ $device->serial }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="start_hand_result_id" class="form-label">ID HandResult bắt đầu</label>
+                            <select class="select2 form-control" id="start_hand_result_id" name="start_hand_result_id" required>
+                                <option value="" disabled selected>Chọn ID HandResult</option>
+                                @foreach ($latestRevenues as $revenue)
+                                    @if ($revenue->id_hand_result)
+                                        <option value="{{ $revenue->id_hand_result }}">
+                                            {{ $revenue->id_hand_result }} ({{ $revenue->date }} {{ str_pad($revenue->hour, 2, '0', STR_PAD_LEFT) }}:00)
+                                        </option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="end_hand_result_id" class="form-label">ID HandResult kết thúc</label>
+                            <select class="select2 form-control" id="end_hand_result_id" name="end_hand_result_id" required>
+                                <option value="" disabled selected>Chọn ID HandResult</option>
+                                @foreach ($latestRevenues as $revenue)
+                                    @if ($revenue->id_hand_result)
+                                        <option value="{{ $revenue->id_hand_result }}">
+                                            {{ $revenue->id_hand_result }} ({{ $revenue->date }} {{ str_pad($revenue->hour, 2, '0', STR_PAD_LEFT) }}:00)
+                                        </option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3 align-self-end">
+                            <button type="submit" class="btn btn-primary">Tính toán</button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Hiển thị kết quả đối chiếu nếu có -->
+                @if (isset($data))
+                    <h5>Kết quả đối chiếu doanh thu</h5>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h6>Khoảng ID HandResult: {{ $data['start_hand_result_id'] }} - {{ $data['end_hand_result_id'] }} (Thời gian: {{ $data['start_time'] }} - {{ $data['end_time'] }})</h6>
+                            <p>Tổng DeviceHourlyRevenue: {{ number_format($data['total_money'], 2) }} VNĐ</p>
+                            <p>Tổng HandResult: {{ number_format($data['hand_result_total'], 2) }} VNĐ</p>
+                            <p>Chênh lệch: {{ number_format($data['difference'], 2) }} VNĐ</p>
+                            <table class="table table-striped mt-2">
+                                <thead>
+                                    <tr>
+                                        <th>Serial</th>
+                                        <th>Chủ sở hữu</th>
+                                        <th>Ngày</th>
+                                        <th>Giờ</th>
+                                        <th>Tổng tiền (VNĐ)</th>
+                                        <th>ID HandResult</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($data['device_hourly_revenue'] as $item)
+                                        <tr>
+                                            <td>{{ $item->serial }}</td>
+                                            <td>{{ $item->owner }}</td>
+                                            <td>{{ $item->date }}</td>
+                                            <td>{{ $item->hour }}h</td>
+                                            <td>{{ number_format($item->total_money, 2) }}</td>
+                                            <td>{{ $item->id_hand_result }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6">Không có dữ liệu</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @endif
+
+                <!-- Bảng danh sách doanh thu mới nhất -->
                 <div id="datatable-buttons_wrapper" class="dt-container dt-bootstrap5 dt-empty-footer">
                     <div class="d-md-flex justify-content-between align-items-center my-2">
                         <div class="dt-buttons btn-group flex-wrap">
@@ -25,42 +140,16 @@
                             <input type="search" class="form-control form-control-sm" id="dt-search-2" placeholder="" aria-controls="datatable-buttons">
                         </div>
                     </div>
-                    <!-- Form lọc -->
-                    <form method="GET" action="{{ route('devices.index') }}" class="mb-3">
-                        <div class="row g-2">
-                            <div class="col-md-3">
-                                <label for="device_serial" class="form-label">Device serial</label>
-                                <select class="select2 form-control select2-multiple"
-                                    id="device_serial"
-                                    name="device_serial[]"
-                                    data-toggle="select2"
-                                    multiple="multiple"
-                                    data-placeholder="Choose ...">
-                                    @foreach ($devices as $device)
-                                    <option value="{{ $device->serial }}"
-                                        @if (is_array(request()->device_serial) && in_array($device->serial, request()->device_serial))
-                                        selected
-                                        @endif>
-                                        {{ $device->serial }}
-                                    </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-3 align-self-end">
-                                <button type="submit" class="btn btn-primary">Lọc</button>
-                                <a href="{{ route('devices.index') }}" class="btn btn-secondary">Xóa bộ lọc</a>
-                            </div>
-                        </div>
-                    </form>
                     <table id="datatable-buttons" class="table table-striped dt-responsive nowrap w-100 mb-0 dataTable dtr-inline" aria-describedby="datatable-buttons_info" style="width: 100%;">
                         <colgroup>
                             <col data-dt-column="0" style="width: 150px;">
                             <col data-dt-column="1" style="width: 150px;">
-                            <col data-dt-column="2" style="width: 120px;">
-                            <col data-dt-column="3" style="width: 80px;">
-                            <col data-dt-column="4" style="width: 150px;">
-                            <col data-dt-column="5" style="width: 120px;">
+                            <col data-dt-column="2" style="width: 150px;">
+                            <col data-dt-column="3" style="width: 120px;">
+                            <col data-dt-column="4" style="width: 80px;">
+                            <col data-dt-column="5" style="width: 150px;">
                             <col data-dt-column="6" style="width: 120px;">
+                            <col data-dt-column="7" style="width: 120px;">
                         </colgroup>
                         <thead>
                             <tr>
@@ -141,6 +230,52 @@
             buttons: ['copy', 'csv', 'excel', 'print', 'pdf'],
             responsive: true,
             pageLength: 10
+        });
+
+        // Khởi tạo Select2 cho form chọn thiết bị và ID HandResult
+        $('.select2').select2({
+            placeholder: "Chọn",
+            allowClear: true
+        });
+
+        // Validate client-side để đảm bảo end_hand_result_id >= start_hand_result_id
+        $('#end_hand_result_id').on('change', function() {
+            let startId = parseInt($('#start_hand_result_id').val());
+            let endId = parseInt($(this).val());
+            if (endId < startId) {
+                alert('ID HandResult kết thúc phải lớn hơn hoặc bằng ID HandResult bắt đầu.');
+                $(this).val('');
+            }
+        });
+
+        // Lọc ID HandResult theo serial được chọn
+        $('#serial').on('change', function() {
+            let selectedSerial = $(this).val();
+            let startHandResultSelect = $('#start_hand_result_id');
+            let endHandResultSelect = $('#end_hand_result_id');
+
+            // Xóa các tùy chọn ID HandResult hiện tại
+            startHandResultSelect.find('option:not(:first)').remove();
+            endHandResultSelect.find('option:not(:first)').remove();
+
+            // Lấy dữ liệu ID HandResult từ server dựa trên serial
+            $.ajax({
+                url: '{{ route("devices.get-revenues-by-serial") }}',
+                method: 'GET',
+                data: { serial: selectedSerial },
+                success: function(response) {
+                    response.revenues.forEach(function(revenue) {
+                        if (revenue.id_hand_result) {
+                            let option = `<option value="${revenue.id_hand_result}">${revenue.id_hand_result} (${revenue.date} ${revenue.hour.toString().padStart(2, '0')}:00)</option>`;
+                            startHandResultSelect.append(option);
+                            endHandResultSelect.append(option);
+                        }
+                    });
+                },
+                error: function() {
+                    alert('Không thể tải dữ liệu ID HandResult.');
+                }
+            });
         });
     });
 </script>

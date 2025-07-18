@@ -68,5 +68,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/line-chart-data', [DashboardStatsController::class, 'lineChartData'])->name('lineChartData');
     Route::get('/device-chi-win-rate', [DashboardStatsController::class, 'getDeviceChiWinRate']);
     Route::get('/devices/revenue', [DashboardStatsController::class, 'deviceResult'])->name('devicesRevenue');
+    Route::get('/compare-money', [DeviceController::class, 'compareMoneyByTimeRanges'])->name('devices.compare-money');
+    Route::get('/revenues-by-serial', [DeviceController::class, 'getRevenuesBySerial'])->name('devices.get-revenues-by-serial');
 });
 ?>
