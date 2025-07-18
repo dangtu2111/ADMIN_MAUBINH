@@ -64,6 +64,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/hand-results/{id}', [HandResultController::class, 'update'])->name('hand-results.update');
     // Route hiển thị danh sách thiết bị
     Route::get('/devices', [DeviceController::class, 'index'])->name('devices.index');
+    Route::delete('/devices/delete/{id}', [DeviceController::class, 'destroyRevenue'])->name('revenues.destroy');
     Route::get('/line-chart-data', [DashboardStatsController::class, 'lineChartData'])->name('lineChartData');
     Route::get('/device-chi-win-rate', [DashboardStatsController::class, 'getDeviceChiWinRate']);
     Route::get('/devices/revenue', [DashboardStatsController::class, 'deviceResult'])->name('devicesRevenue');

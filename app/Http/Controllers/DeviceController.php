@@ -17,20 +17,21 @@ class DeviceController extends Controller
     }
 
     public function index(Request $request)
-    {   
+    {
         if ($request->has('device_serial') && is_array($request->device_serial)) {
             // Lấy danh sách device_serial từ request
             $deviceSerials = $request->device_serial;
 
             // Lấy tất cả bản ghi từ DeviceHourlyRevenue cho các device_serial
             $latestRevenues = DeviceHourlyRevenue::whereHas('device', function ($query) use ($deviceSerials) {
-                    $query->whereIn('serial', $deviceSerials); // Lọc theo device_serial
-                })
+                $query->whereIn('serial', $deviceSerials); // Lọc theo device_serial
+            })
                 ->with(['device', 'device.user']) // Load quan hệ device và user
                 ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($revenue) {
                     return (object) [
+                        'id' => $revenue->id,
                         'serial' => $revenue->device->serial ?? 'N/A',
                         'owner' => $revenue->device->user->username ?? 'N/A',
                         'date' => $revenue->date,
@@ -39,18 +40,21 @@ class DeviceController extends Controller
                         'id_hand_result' => $revenue->id_hand_result ?? 'N/A',
                     ];
                 })->sortBy('serial')->values();
-        }else{
+        } else {
             // Lấy bản ghi mới nhất cho mỗi thiết bị từ DeviceHourlyRevenue
             $latestRevenues = DeviceHourlyRevenue::select('device_hourly_revenue.*')
-                ->join(DB::raw('(SELECT id_device, MAX(created_at) as max_created_at FROM device_hourly_revenue GROUP BY id_device) as latest'),
+                ->join(
+                    DB::raw('(SELECT id_device, MAX(created_at) as max_created_at FROM device_hourly_revenue GROUP BY id_device) as latest'),
                     function ($join) {
                         $join->on('device_hourly_revenue.id_device', '=', 'latest.id_device')
                             ->on('device_hourly_revenue.created_at', '=', 'latest.max_created_at');
-                    })
+                    }
+                )
                 ->with(['device', 'device.user']) // Load quan hệ device và user
                 ->get()
                 ->map(function ($revenue) {
                     return (object) [
+                        'id' => $revenue->id,
                         'serial' => $revenue->device->serial ?? 'N/A',
                         'owner' => $revenue->device->user->username ?? 'N/A',
                         'date' => $revenue->date,
@@ -60,7 +64,7 @@ class DeviceController extends Controller
                     ];
                 })->sortBy('serial')->values();
         }
-        
+
 
         // Nếu là request API, trả về JSON
         if ($request->expectsJson()) {
@@ -69,10 +73,31 @@ class DeviceController extends Controller
                 'data' => $latestRevenues
             ], 200);
         }
-        $devices=Device::all();
+        $devices = Device::all();
 
         // Nếu là request Blade, trả về view
-        return view('devices.index', compact('latestRevenues','devices'));
+        return view('devices.index', compact('latestRevenues', 'devices'));
+    }
+    public function destroyRevenue(Request $request, $id)
+    {
+        $revenue = DeviceHourlyRevenue::find($id);
+
+        if (!$revenue) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bản ghi doanh thu không tồn tại'
+            ], 404);
+        }
+
+        $revenue->delete();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã xóa bản ghi doanh thu thành công'
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Đã xóa bản ghi doanh thu thành công!');
     }
 }
-?>
