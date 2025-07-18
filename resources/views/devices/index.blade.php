@@ -323,7 +323,6 @@
                             <td>${parseFloat(hr.money).toFixed(2)}</td>
                             <td>${hr.chi_wins ?? 0}</td>
                             <td>${hr.chi_losses ?? 0}</td>
-                            <td>${hr.chi_losses ?? 0}</td>
                            <td>
                                 <a href="${editUrl}" class="btn btn-sm btn-primary">Sửa</a>
                                 <form action="${deleteUrl}" method="POST" style="display:inline;" onsubmit="return confirm('Bạn có chắc muốn xóa bản ghi này?')">
