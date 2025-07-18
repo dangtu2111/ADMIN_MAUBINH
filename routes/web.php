@@ -70,5 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/devices/revenue', [DashboardStatsController::class, 'deviceResult'])->name('devicesRevenue');
     Route::get('/compare-money', [DeviceController::class, 'compareMoneyByTimeRanges'])->name('devices.compare-money');
     Route::get('/revenues-by-serial', [DeviceController::class, 'getRevenuesBySerial'])->name('devices.get-revenues-by-serial');
+    Route::get('/hand-results/range', [DeviceController::class, 'getHandResultsInRange'])->name('hand-results.range');
+
 });
 ?>

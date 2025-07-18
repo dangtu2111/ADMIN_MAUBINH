@@ -16,65 +16,47 @@
                 <!-- Form tính toán đối chiếu doanh thu -->
                 <h5 class="mt-4">Tính toán và đối chiếu doanh thu</h5>
                 <form method="GET" action="{{ route('devices.compare-money') }}" class="mb-4">
-    <div class="row g-2">
-        <!-- Device Serial -->
-        <div class="col-md-3">
-            <label for="serial" class="form-label">Device Serial</label>
-            <select class="select2 form-control" id="serial" name="serial" required>
-                <option value="" disabled {{ request('serial') ? '' : 'selected' }}>Chọn thiết bị</option>
-                @foreach ($devices as $device)
-                    <option value="{{ $device->serial }}"
-                        @if (request('serial') == $device->serial)
-                            selected
-                        @endif>
-                        {{ $device->serial }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-
-        <!-- Start HandResult -->
-        <div class="col-md-3">
-            <label for="start_hand_result_id" class="form-label">ID HandResult bắt đầu</label>
-            <select class="select2 form-control" id="start_hand_result_id" name="start_hand_result_id" required>
-                <option value="" disabled {{ request('start_hand_result_id') ? '' : 'selected' }}>Chọn ID HandResult</option>
-                @foreach ($latestRevenues as $revenue)
-                    @if ($revenue->id_hand_result)
-                        <option value="{{ $revenue->id_hand_result }}"
-                            @if (request('start_hand_result_id') == $revenue->id_hand_result)
-                                selected
-                            @endif>
-                            {{ $revenue->id_hand_result }} ({{ $revenue->date }} {{ str_pad($revenue->hour, 2, '0', STR_PAD_LEFT) }}:00)
-                        </option>
-                    @endif
-                @endforeach
-            </select>
-        </div>
-
-        <!-- End HandResult -->
-        <div class="col-md-3">
-            <label for="end_hand_result_id" class="form-label">ID HandResult kết thúc</label>
-            <select class="select2 form-control" id="end_hand_result_id" name="end_hand_result_id" required>
-                <option value="" disabled {{ request('end_hand_result_id') ? '' : 'selected' }}>Chọn ID HandResult</option>
-                @foreach ($latestRevenues as $revenue)
-                    @if ($revenue->id_hand_result)
-                        <option value="{{ $revenue->id_hand_result }}"
-                            @if (request("end_hand_result_id") == $revenue->id_hand_result)
-                                selected
-                            @endif>
-                            {{ $revenue->id_hand_result }} ({{ $revenue->date }} {{ str_pad($revenue->hour, 2, '0', STR_PAD_LEFT) }}:00)
-                        </option>
-                    @endif
-                @endforeach
-            </select>
-        </div>
-
-        <!-- Submit -->
-        <div class="col-md-3 align-self-end">
-            <button type="submit" class="btn btn-primary">Tính toán</button>
-        </div>
-    </div>
-</form>
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <label for="serial" class="form-label">Device Serial</label>
+                            <select class="select2 form-control" id="serial" name="serial" required>
+                                <option value="" disabled selected>Chọn thiết bị</option>
+                                @foreach ($devices as $device)
+                                <option value="{{ $device->serial }}">{{ $device->serial }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="start_hand_result_id" class="form-label">ID HandResult bắt đầu</label>
+                            <select class="select2 form-control" id="start_hand_result_id" data-toggle="select2" name="start_hand_result_id" required>
+                                <option value="" disabled selected>Chọn ID HandResult</option>
+                                @foreach ($latestRevenues as $revenue)
+                                @if ($revenue->id_hand_result)
+                                <option value="{{ $revenue->id_hand_result }}">
+                                    {{ $revenue->id_hand_result }} ({{ $revenue->date }} {{ str_pad($revenue->hour, 2, '0', STR_PAD_LEFT) }}:00)
+                                </option>
+                                @endif
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="end_hand_result_id" class="form-label">ID HandResult kết thúc</label>
+                            <select class="select2 form-control" id="end_hand_result_id" name="end_hand_result_id" required>
+                                <option value="" disabled selected>Chọn ID HandResult</option>
+                                @foreach ($latestRevenues as $revenue)
+                                @if ($revenue->id_hand_result)
+                                <option value="{{ $revenue->id_hand_result }}">
+                                    {{ $revenue->id_hand_result }} ({{ $revenue->date }} {{ str_pad($revenue->hour, 2, '0', STR_PAD_LEFT) }}:00)
+                                </option>
+                                @endif
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3 align-self-end">
+                            <button type="submit" class="btn btn-primary">Tính toán</button>
+                        </div>
+                    </div>
+                </form>
 
                 <!-- Hiển thị kết quả đối chiếu nếu có -->
                 @if (isset($data))

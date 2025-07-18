@@ -15,5 +15,3 @@
 <script src="/js/jsvectormap.min.js"></script>
 <script src="/js/world-merc.js"></script>
 <script src="/js/world.js"></script>
-<!-- Dashboard App js -->
-<script src="/js/demo.dashboard.js"></script>

@@ -67,5 +67,7 @@
  @endsection
  @section('script')
 <script src="js/update-dashboard.js"></script>
+<!-- Dashboard App js -->
+<script src="/js/demo.dashboard.js"></script>
 
  @endsection

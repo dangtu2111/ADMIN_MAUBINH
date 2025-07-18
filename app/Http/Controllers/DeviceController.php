@@ -241,4 +241,33 @@ class DeviceController extends Controller
             })->values()
         ]);
     }
+    public function getHandResultsInRange(Request $request)
+    {
+        // ✅ Validate dữ liệu đầu vào
+        $validated = $request->validate([
+            'serial' => 'required|string|exists:devices,serial',
+            'start_hand_result_id' => 'required|integer|exists:hand_results,id',
+            'end_hand_result_id' => 'required|integer|exists:hand_results,id|gte:start_hand_result_id',
+        ]);
+
+        // ✅ Lấy thiết bị từ serial
+        $device = Device::where('serial', $validated['serial'])->first();
+        if (!$device) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Thiết bị không tồn tại.'
+            ], 404);
+        }
+
+        // ✅ Lấy danh sách HandResult trong khoảng
+        $handResults = HandResult::where('id_device', $device->id)
+            ->whereBetween('id', [$validated['start_hand_result_id'], $validated['end_hand_result_id']])
+            ->orderBy('id')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $handResults,
+        ]);
+    }
 }
