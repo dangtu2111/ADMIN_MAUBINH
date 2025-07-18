@@ -276,6 +276,7 @@
                 .find('a').attr('onclick', current_page < last_page ? `fetchHandResults(${last_page})` : null);
         }
     function fetchHandResults(page = 1) {
+        
             let serial = $('#serial').val();
             let startId = $('#start_hand_result_id').val();
             let endId = $('#end_hand_result_id').val();
@@ -319,6 +320,9 @@
                         });
 
                         $('#handresults-list').show();
+                        document.getElementById('handresults-list').scrollIntoView({
+                            behavior: 'smooth'
+                        });
                         renderPagination(response.pagination); // 👈 truyền toàn bộ đối tượng phân trang
                     } else {
                         alert("Không có dữ liệu.");
