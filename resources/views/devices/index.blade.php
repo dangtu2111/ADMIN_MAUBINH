@@ -100,6 +100,7 @@
                                         <th>Tiền</th>
                                         <th>Chi thắng</th>
                                         <th>Chi thua</th>
+                                        <th>Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody id="handresults-body"></tbody>
@@ -247,67 +248,73 @@
 
 <script>
     function renderPagination(pagination) {
-            const {
-                current_page,
-                last_page
-            } = pagination;
-            const paginationLinks = $('#pagination-links');
+        const {
+            current_page,
+            last_page
+        } = pagination;
+        const paginationLinks = $('#pagination-links');
 
-            // Gỡ các nút trang hiện tại (trừ các nút đặc biệt)
-            paginationLinks.find('.page-number').remove();
-            console.log(last_page);
-            // Thêm các nút số trang
-            for (let i = 1; i <= last_page; i++) {
-                
-        let active = i === current_page ? 'active' : '';
-        $(`<li class="page-item page-number ${active}">
+        // Gỡ các nút trang hiện tại (trừ các nút đặc biệt)
+        paginationLinks.find('.page-number').remove();
+        console.log(last_page);
+        // Thêm các nút số trang
+        for (let i = 1; i <= last_page; i++) {
+
+            let active = i === current_page ? 'active' : '';
+            $(`<li class="page-item page-number ${active}">
             <a class="page-link" href="#" onclick="fetchHandResults(${i})">${i}</a>
         </li>`).insertBefore('#next-page');
+        }
+
+        // Cập nhật trạng thái nút điều hướng
+        $('#first-page').toggleClass('disabled', current_page === 1)
+            .find('a').attr('onclick', current_page > 1 ? `fetchHandResults(1)` : null);
+        $('#prev-page').toggleClass('disabled', current_page === 1)
+            .find('a').attr('onclick', current_page > 1 ? `fetchHandResults(${current_page - 1})` : null);
+        $('#next-page').toggleClass('disabled', current_page === last_page)
+            .find('a').attr('onclick', current_page < last_page ? `fetchHandResults(${current_page + 1})` : null);
+        $('#last-page').toggleClass('disabled', current_page === last_page)
+            .find('a').attr('onclick', current_page < last_page ? `fetchHandResults(${last_page})` : null);
     }
 
-            // Cập nhật trạng thái nút điều hướng
-            $('#first-page').toggleClass('disabled', current_page === 1)
-                .find('a').attr('onclick', current_page > 1 ? `fetchHandResults(1)` : null);
-            $('#prev-page').toggleClass('disabled', current_page === 1)
-                .find('a').attr('onclick', current_page > 1 ? `fetchHandResults(${current_page - 1})` : null);
-            $('#next-page').toggleClass('disabled', current_page === last_page)
-                .find('a').attr('onclick', current_page < last_page ? `fetchHandResults(${current_page + 1})` : null);
-            $('#last-page').toggleClass('disabled', current_page === last_page)
-                .find('a').attr('onclick', current_page < last_page ? `fetchHandResults(${last_page})` : null);
-        }
     function fetchHandResults(page = 1) {
-        
-            let serial = $('#serial').val();
-            let startId = $('#start_hand_result_id').val();
-            let endId = $('#end_hand_result_id').val();
 
-            if (!serial || !startId || !endId) {
-                alert("Vui lòng chọn đầy đủ thông tin!");
-                return;
+        let serial = $('#serial').val();
+        let startId = $('#start_hand_result_id').val();
+        let endId = $('#end_hand_result_id').val();
+
+        if (!serial || !startId || !endId) {
+            alert("Vui lòng chọn đầy đủ thông tin!");
+            return;
+        }
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
+        });
 
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
+        $.ajax({
+            url: '{{ route("hand-results.range") }}',
+            method: 'GET',
+            data: {
+                serial: serial,
+                start_hand_result_id: startId,
+                end_hand_result_id: endId,
+                page: page
+            },
+            success: function(response) {
+                const editUrlTemplate = '{{ route("hand-results.edit", ":id") }}';
+                const deleteUrlTemplate = '{{ route("hand-results.destroy", ":id") }}';
+                if (response.success) {
+                    let body = $('#handresults-body');
+                    body.empty();
 
-            $.ajax({
-                url: '{{ route("hand-results.range") }}',
-                method: 'GET',
-                data: {
-                    serial: serial,
-                    start_hand_result_id: startId,
-                    end_hand_result_id: endId,
-                    page: page
-                },
-                success: function(response) {
-                    if (response.success) {
-                        let body = $('#handresults-body');
-                        body.empty();
+                    response.data.forEach(hr => {
+                        const editUrl = editUrlTemplate.replace(':id', hr.id);
+                        const deleteUrl = deleteUrlTemplate.replace(':id', hr.id);
 
-                        response.data.forEach(hr => {
-                            body.append(`
+                        body.append(`
                         <tr>
                             <td>${hr.id}</td>
                             <td>${serial}</td>
@@ -315,24 +322,33 @@
                             <td>${parseFloat(hr.money).toFixed(2)}</td>
                             <td>${hr.chi_wins ?? 0}</td>
                             <td>${hr.chi_losses ?? 0}</td>
+                            <td>${hr.chi_losses ?? 0}</td>
+                           <td>
+                                <a href="${editUrl}" class="btn btn-sm btn-primary">Sửa</a>
+                                <form action="${deleteUrl}" method="POST" style="display:inline;" onsubmit="return confirm('Bạn có chắc muốn xóa bản ghi này?')">
+                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                                </form>
+                            </td>
                         </tr>
                     `);
-                        });
+                    });
 
-                        $('#handresults-list').show();
-                        document.getElementById('handresults-list').scrollIntoView({
-                            behavior: 'smooth'
-                        });
-                        renderPagination(response.pagination); // 👈 truyền toàn bộ đối tượng phân trang
-                    } else {
-                        alert("Không có dữ liệu.");
-                    }
-                },
-                error: function() {
-                    alert("Lỗi khi gọi API.");
+                    $('#handresults-list').show();
+                    document.getElementById('handresults-list').scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                    renderPagination(response.pagination); // 👈 truyền toàn bộ đối tượng phân trang
+                } else {
+                    alert("Không có dữ liệu.");
                 }
-            });
-        }
+            },
+            error: function() {
+                alert("Lỗi khi gọi API.");
+            }
+        });
+    }
     document.addEventListener('DOMContentLoaded', function() {
         // $('#datatable-buttons').DataTable({
         //     dom: 'Bfrtip',
@@ -389,10 +405,10 @@
             });
         });
 
-        
 
 
-        
+
+
         $('#show-handresults').on('click', function() {
             fetchHandResults(1);
 
