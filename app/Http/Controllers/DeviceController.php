@@ -169,7 +169,7 @@ class DeviceController extends Controller
             ->get();
 
         $handResultMoney = $handResults->sum('money');
-
+        $handResultsCount = $handResults->count();
         // ✅ Chuẩn bị dữ liệu trả về
         $data = [
             'start_hand_result_id' => $startHandResultId,
@@ -189,6 +189,7 @@ class DeviceController extends Controller
             'total_money' => (float) $totalMoney,
             'hand_result_total' => (float) $handResultMoney,
             'difference' => abs($totalMoney - $handResultMoney),
+            'handResultsCount'=>$handResultsCount,
         ];
 
         // ✅ Trả về JSON nếu là API

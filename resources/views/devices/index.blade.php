@@ -84,6 +84,7 @@
                         <h6>Khoảng ID HandResult: {{ $data['start_hand_result_id'] }} - {{ $data['end_hand_result_id'] }} (Thời gian: {{ $data['start_time'] }} - {{ $data['end_time'] }})</h6>
                         <p>Tổng DeviceHourlyRevenue: {{ number_format($data['total_money'], 2) }} VNĐ</p>
                         <p>Tổng HandResult: {{ number_format($data['hand_result_total'], 2) }} VNĐ</p>
+                        <p>Tổng số ván: {{ number_format($data['handResultsCount'], 2) }} ván</p>
                         <p>Chênh lệch: {{ number_format($data['difference'], 2) }} VNĐ</p>
                         <div class="col-md-3 align-self-end">
                             <button type="button" class="btn btn-info" id="show-handresults">Show HandResults</button>
