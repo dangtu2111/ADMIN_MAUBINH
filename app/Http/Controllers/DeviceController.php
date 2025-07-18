@@ -19,10 +19,11 @@ class DeviceController extends Controller
 
     public function index(Request $request)
     {
+        dd(now());
         if ($request->has('device_serial') && is_array($request->device_serial)) {
             // Lấy danh sách device_serial từ request
             $deviceSerials = $request->device_serial;
-
+            
             // Lấy tất cả bản ghi từ DeviceHourlyRevenue cho các device_serial
             $latestRevenues = DeviceHourlyRevenue::whereHas('device', function ($query) use ($deviceSerials) {
                 $query->whereIn('serial', $deviceSerials); // Lọc theo device_serial
