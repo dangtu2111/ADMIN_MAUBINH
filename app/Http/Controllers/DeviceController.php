@@ -103,99 +103,102 @@ class DeviceController extends Controller
     }
 
     public function compareMoneyByTimeRanges(Request $request)
-{
-    // ✅ Validate dữ liệu đầu vào
-    $request->validate([
-        'serial' => 'required|string|exists:devices,serial',
-        'start_hand_result_id' => 'required|integer|exists:hand_results,id',
-        'end_hand_result_id' => 'required|integer|exists:hand_results,id|gte:start_hand_result_id',
-    ]);
+    {
+        // ✅ Validate dữ liệu đầu vào
+        $request->validate([
+            'serial' => 'required|string|exists:devices,serial',
+            'start_hand_result_id' => 'required|integer|exists:hand_results,id',
+            'end_hand_result_id' => 'required|integer|exists:hand_results,id|gte:start_hand_result_id',
+        ]);
 
-    // ✅ Lấy tham số từ request
-    $serial = $request->input('serial');
-    $startHandResultId = (int) $request->input('start_hand_result_id');
-    $endHandResultId = (int) $request->input('end_hand_result_id');
+        $serial = $request->input('serial');
+        $startHandResultId = (int) $request->input('start_hand_result_id');
+        $endHandResultId = (int) $request->input('end_hand_result_id');
 
-    // ✅ Lấy thiết bị từ serial
-    $device = Device::where('serial', $serial)->first();
-    if (!$device) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Thiết bị không tồn tại.'
-        ], 404);
-    }
+        // ✅ Lấy thiết bị
+        $device = Device::where('serial', $serial)->first();
+        if (!$device) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Thiết bị không tồn tại.'
+            ], 404);
+        }
 
-    // ✅ Lấy khoảng thời gian từ HandResult
-    $startHandResult = HandResult::find($startHandResultId);
-    $endHandResult = HandResult::find($endHandResultId);
+        // ✅ Lấy thông tin hand result
+        $startHandResult = HandResult::find($startHandResultId);
+        $endHandResult = HandResult::find($endHandResultId);
 
-    if (!$startHandResult || !$endHandResult || 
-        $startHandResult->id_device !== $device->id || 
-        $endHandResult->id_device !== $device->id) {
-        return response()->json([
-            'success' => false,
-            'message' => 'ID HandResult không hợp lệ hoặc không thuộc thiết bị được chọn.'
-        ], 400);
-    }
+        if (
+            !$startHandResult || !$endHandResult ||
+            $startHandResult->id_device !== $device->id ||
+            $endHandResult->id_device !== $device->id
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'ID HandResult không hợp lệ hoặc không thuộc thiết bị được chọn.'
+            ], 400);
+        }
 
-    $startTime = $startHandResult->created_at;
-    $endTime = $endHandResult->created_at;
+        $startTime = $startHandResult->created_at;
+        $endTime = $endHandResult->created_at;
 
-    // ✅ Lấy total_money từ DeviceHourlyRevenue trong khoảng thời gian
-    $revenues = DeviceHourlyRevenue::where('id_device', $device->id)
-        ->whereRaw("CONCAT(date, ' ', LPAD(hour, 2, '0'), ':00:00') BETWEEN ? AND ?", [$startTime, $endTime])
-        ->with(['device', 'device.user'])
-        ->get();
+        // ✅ Lấy 2 bản ghi DeviceHourlyRevenue ứng với thời điểm start và end
+        $revenues = DeviceHourlyRevenue::where('id_device', $device->id)
+            ->where(function ($query) use ($startTime, $endTime) {
+                $query->whereRaw("CONCAT(date, ' ', LPAD(hour, 2, '0'), ':00:00') = ?", [$startTime->format('Y-m-d H:00:00')])
+                    ->orWhereRaw("CONCAT(date, ' ', LPAD(hour, 2, '0'), ':00:00') = ?", [$endTime->format('Y-m-d H:00:00')]);
+            })
+            ->with(['device', 'device.user'])
+            ->get();
 
-    $totalMoney = $revenues->sum('total_money');
+        $totalMoney = $revenues->sum('total_money');
 
-    // ✅ Lấy tổng money từ HandResult theo ID
-    $handResults = HandResult::where('id_device', $device->id)
-        ->whereBetween('id', [$startHandResultId, $endHandResultId])
-        ->get();
+        // ✅ Tổng tiền từ hand_results trong khoảng ID
+        $handResults = HandResult::where('id_device', $device->id)
+            ->whereBetween('id', [$startHandResultId, $endHandResultId])
+            ->get();
 
-    $handResultMoney = $handResults->sum('money');
+        $handResultMoney = $handResults->sum('money');
 
-    // ✅ Dữ liệu trả về
-    $data = [
-        'start_hand_result_id' => $startHandResultId,
-        'end_hand_result_id' => $endHandResultId,
-        'start_time' => $startTime,
-        'end_time' => $endTime,
-        'device_hourly_revenue' => $revenues->map(function ($revenue) {
-            return (object)[
-                'serial' => $revenue->device->serial ?? 'N/A',
-                'owner' => $revenue->device->user->username ?? 'N/A',
-                'date' => $revenue->date,
-                'hour' => $revenue->hour,
-                'total_money' => (float) $revenue->total_money,
-                'id_hand_result' => $revenue->id_hand_result ?? 'N/A',
-            ];
-        })->values(),
-        'total_money' => (float) $totalMoney,
-        'hand_result_total' => (float) $handResultMoney,
-        'difference' => abs($totalMoney - $handResultMoney),
-    ];
+        // ✅ Chuẩn bị dữ liệu trả về
+        $data = [
+            'start_hand_result_id' => $startHandResultId,
+            'end_hand_result_id' => $endHandResultId,
+            'start_time' => $startTime,
+            'end_time' => $endTime,
+            'device_hourly_revenue' => $revenues->map(function ($revenue) {
+                return (object)[
+                    'serial' => $revenue->device->serial ?? 'N/A',
+                    'owner' => $revenue->device->user->username ?? 'N/A',
+                    'date' => $revenue->date,
+                    'hour' => $revenue->hour,
+                    'total_money' => (float) $revenue->total_money,
+                    'id_hand_result' => $revenue->id_hand_result ?? 'N/A',
+                ];
+            })->values(),
+            'total_money' => (float) $totalMoney,
+            'hand_result_total' => (float) $handResultMoney,
+            'difference' => abs($totalMoney - $handResultMoney),
+        ];
 
-    // ✅ Trả về JSON nếu là API
-    if ($request->expectsJson()) {
-        return response()->json([
-            'success' => true,
-            'data' => $data,
-            'filters' => [
-                'serial' => $serial,
-                'start_hand_result_id' => $startHandResultId,
-                'end_hand_result_id' => $endHandResultId,
-            ]
-        ], 200);
-    }
+        // ✅ Trả về JSON nếu là API
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+                'filters' => [
+                    'serial' => $serial,
+                    'start_hand_result_id' => $startHandResultId,
+                    'end_hand_result_id' => $endHandResultId,
+                ]
+            ], 200);
+        }
 
-    // ✅ Trả về view nếu là request từ Blade
-    $devices = Device::all();
-    $latestRevenues = DeviceHourlyRevenue::with(['device', 'device.user'])
-        ->orderBy('created_at', 'desc')
-        ->get()
-        ->map(function ($revenue) {
+        // ✅ Trả về view nếu là request Blade
+        $devices = Device::all();
+
+        // Chỉ trả về 2 bản ghi tương ứng thời điểm bắt đầu và kết thúc
+        $latestRevenues = $revenues->map(function ($revenue) {
             return (object)[
                 'id' => $revenue->id,
                 'serial' => $revenue->device->serial ?? 'N/A',
@@ -207,8 +210,8 @@ class DeviceController extends Controller
             ];
         })->values();
 
-    return view('devices.index', compact('data', 'devices', 'latestRevenues'));
-}
+        return view('devices.index', compact('data', 'devices', 'latestRevenues'));
+    }
 
     public function getRevenuesBySerial(Request $request)
     {
