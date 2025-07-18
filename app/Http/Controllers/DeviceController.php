@@ -169,6 +169,7 @@ class DeviceController extends Controller
             ->get();
 
         $handResultMoney = $handResults->sum('money');
+        dd($handResults);
         $handResultsCount = $handResults->count();
         // ✅ Chuẩn bị dữ liệu trả về
         $data = [
